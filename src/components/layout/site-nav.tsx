@@ -57,13 +57,7 @@ export function SiteNav() {
 
           <div className="flex items-center justify-self-end gap-2.5 sm:gap-4">
             <LanguageToggle />
-            <Link href="/auth/login" aria-label={t.nav.admin} className="text-foreground">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                <circle cx="12" cy="8" r="4" />
-                <path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" />
-              </svg>
-            </Link>
-            <Link href="/catalogo" aria-label={t.nav.cart} className="hidden text-foreground sm:block">
+            <Link href="/catalogo" aria-label={t.nav.cart} className="text-foreground">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.8h8.4a2 2 0 0 0 2-1.6L22 9H6" />
                 <circle cx="10" cy="21" r="1" />

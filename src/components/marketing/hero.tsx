@@ -2,19 +2,22 @@
 
 import Link from "next/link"
 import { LogoNomoraFull } from "@/components/brand/isotipo"
+import { HeroVideoBackground } from "@/components/marketing/hero-video-background"
 import { useLocale } from "@/lib/i18n/locale-context"
 
 export function Hero() {
   const { t } = useLocale()
 
   return (
-    <header
-      className="relative overflow-hidden border-b border-white/10"
-      style={{
-        background:
-          "radial-gradient(ellipse 900px 500px at 50% 82%, color-mix(in srgb, var(--nomora-terracota) 35%, transparent) 0%, transparent 62%), var(--nomora-negro)",
-      }}
-    >
+    <header className="relative overflow-hidden border-b border-white/10 bg-[var(--nomora-negro)]">
+      <HeroVideoBackground />
+      <div
+        className="absolute inset-0 z-[1]"
+        style={{
+          background:
+            "radial-gradient(ellipse 900px 500px at 50% 82%, color-mix(in srgb, var(--nomora-terracota) 30%, transparent) 0%, transparent 62%), linear-gradient(to bottom, color-mix(in srgb, var(--nomora-negro) 78%, transparent) 0%, color-mix(in srgb, var(--nomora-negro) 60%, transparent) 45%, var(--nomora-negro) 100%)",
+        }}
+      />
       <div className="relative z-[2] mx-auto flex max-w-6xl flex-col items-center px-6 pt-16 text-center sm:pt-24">
         <LogoNomoraFull className="mb-7 h-auto w-[220px] text-[var(--nomora-blanco-hueso)] sm:w-[280px]" />
         <p

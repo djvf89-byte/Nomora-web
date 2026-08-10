@@ -100,7 +100,12 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 pt-6">
-          <small className="text-xs text-muted-foreground">{t.footer.rights}</small>
+          <div className="flex items-center gap-4">
+            <small className="text-xs text-muted-foreground">{t.footer.rights}</small>
+            <Link href="/auth/login" className="text-xs text-muted-foreground hover:text-accent">
+              {t.nav.admin}
+            </Link>
+          </div>
           <div className="flex gap-2">
             <Sello variante="negro" size={22} />
             <Sello variante="hueso" size={22} />
