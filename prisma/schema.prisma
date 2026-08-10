@@ -1,0 +1,305 @@
+// NOMORA — schema.prisma
+// Modelo de datos base V1, según docs/business-rules.md y docs/prd.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum RolUsuario {
+  ADMIN
+  CUSTOMER
+}
+
+enum CategoriaProducto {
+  TOMATODO
+  PONCHO
+  TOALLA
+  MEDIAS
+}
+
+enum EstadoPedido {
+  PENDIENTE
+  PAGADO
+  ENVIADO
+  ENTREGADO
+  CANCELADO
+}
+
+enum TipoPago {
+  YAPE
+  PLIN
+  TRANSFERENCIA_BANCARIA
+  TARJETA
+}
+
+enum EstadoPago {
+  PENDIENTE
+  VERIFICADO
+  RECHAZADO
+}
+
+enum TipoDevolucion {
+  DEVOLUCION_DINERO
+  CAMBIO
+}
+
+enum EstadoDevolucion {
+  SOLICITADA
+  APROBADA
+  RECHAZADA
+  COMPLETADA
+}
+
+// ─── Usuario y autenticación ───────────────────────────────────────────────────
+
+model Usuario {
+  id              String     @id @default(cuid())
+  email           String     @unique
+  emailVerificado DateTime?  @map("emailVerified")
+  passwordHash    String?
+  nombre          String     @map("name")
+  telefono        String?
+  imagenUrl       String?    @map("image")
+  rol             RolUsuario @default(CUSTOMER)
+  creadoEn        DateTime   @default(now())
+  actualizadoEn   DateTime   @updatedAt
+
+  // NextAuth
+  accounts Account[]
+  sessions Session[]
+
+  // Relaciones salientes
+  direcciones             Direccion[]
+  pedidos                 Pedido[]     @relation("ClientePedidos")
+  pagosVerificados         Pago[]       @relation("AdminVerificadorPago")
+  devolucionesGestionadas  Devolucion[] @relation("AdminGestorDevolucion")
+
+  @@index([rol])
+  @@map("usuarios")
+}
+
+// ─── Modelos NextAuth (adapter) ───────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user Usuario @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user Usuario @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── Direcciones de envío ──────────────────────────────────────────────────────
+
+model Direccion {
+  id            String   @id @default(cuid())
+  usuarioId     String?
+  destinatario  String
+  telefono      String
+  direccion     String
+  distrito      String
+  ciudad        String
+  referencia    String?
+  principal     Boolean  @default(false)
+  creadoEn      DateTime @default(now())
+
+  usuario Usuario? @relation(fields: [usuarioId], references: [id])
+  pedidos Pedido[]
+
+  @@index([usuarioId])
+  @@map("direcciones")
+}
+
+// ─── Catálogo ──────────────────────────────────────────────────────────────────
+
+model Producto {
+  id               String            @id @default(cuid())
+  nombre           String
+  descripcion      String?
+  categoria        CategoriaProducto
+  precioCentimos   Int
+  imagenes         String[]
+  incluyeStickers  Boolean           @default(false)
+  activo           Boolean           @default(true)
+  creadoEn         DateTime          @default(now())
+  actualizadoEn    DateTime          @updatedAt
+
+  variantes Variante[]
+  ofertas   OfertaTemporada[] @relation("OfertaProductos")
+
+  @@index([categoria, activo])
+  @@map("productos")
+}
+
+// ─── Cupones y ofertas de temporada ────────────────────────────────────────────
+// No se combinan entre sí — en el checkout se aplica el mayor descuento de los
+// dos (ver docs/business-rules.md). Ambos son solo porcentaje.
+
+model Cupon {
+  id            String    @id @default(cuid())
+  codigo        String    @unique
+  porcentaje    Int
+  activo        Boolean   @default(true)
+  fechaInicio   DateTime?
+  fechaFin      DateTime?
+  usosMaximos   Int?
+  usosActuales  Int       @default(0)
+  creadoEn      DateTime  @default(now())
+
+  @@index([codigo])
+  @@map("cupones")
+}
+
+model OfertaTemporada {
+  id           String     @id @default(cuid())
+  nombre       String
+  porcentaje   Int
+  fechaInicio  DateTime
+  fechaFin     DateTime
+  activo       Boolean    @default(true)
+  creadoEn     DateTime   @default(now())
+
+  productos Producto[] @relation("OfertaProductos")
+
+  @@index([activo, fechaInicio, fechaFin])
+  @@map("ofertas_temporada")
+}
+
+model Variante {
+  id            String   @id @default(cuid())
+  productoId    String
+  talla         String?
+  color         String?
+  sku           String   @unique
+  stock         Int      @default(0)
+  creadoEn      DateTime @default(now())
+  actualizadoEn DateTime @updatedAt
+
+  producto    Producto     @relation(fields: [productoId], references: [id])
+  itemsPedido PedidoItem[]
+
+  @@index([productoId])
+  @@map("variantes")
+}
+
+// ─── Pedidos ───────────────────────────────────────────────────────────────────
+
+model Pedido {
+  id                String       @id @default(cuid())
+  // Sin cuenta de cliente en V1 (checkout de invitado) — el contacto viaja en el pedido.
+  clienteId         String?
+  nombreCliente     String
+  emailCliente      String
+  direccionId       String
+  estado            EstadoPedido @default(PENDIENTE)
+  subtotalCentimos  Int
+  descuentoCentimos Int          @default(0)
+  cuponCodigo       String?
+  totalCentimos     Int
+  creadoEn          DateTime     @default(now())
+  actualizadoEn     DateTime     @updatedAt
+  enviadoEn         DateTime?
+  entregadoEn       DateTime?
+  canceladoEn       DateTime?
+
+  cliente    Usuario?     @relation("ClientePedidos", fields: [clienteId], references: [id])
+  direccion  Direccion    @relation(fields: [direccionId], references: [id])
+  items      PedidoItem[]
+  pago       Pago?
+  devolucion Devolucion?
+
+  @@index([clienteId, estado])
+  @@index([emailCliente])
+  @@index([estado])
+  @@map("pedidos")
+}
+
+model PedidoItem {
+  id                      String @id @default(cuid())
+  pedidoId                String
+  varianteId              String
+  cantidad                Int
+  precioUnitarioCentimos  Int
+
+  pedido   Pedido   @relation(fields: [pedidoId], references: [id])
+  variante Variante @relation(fields: [varianteId], references: [id])
+
+  @@index([pedidoId])
+  @@map("pedido_items")
+}
+
+// ─── Pagos ─────────────────────────────────────────────────────────────────────
+
+model Pago {
+  id                 String     @id @default(cuid())
+  pedidoId           String     @unique
+  tipo               TipoPago
+  estado             EstadoPago @default(PENDIENTE)
+  montoCentimos      Int
+  comprobanteUrl     String?
+  referenciaExterna  String?
+  verificadoPorId    String?
+  verificadoEn       DateTime?
+  creadoEn           DateTime   @default(now())
+
+  pedido        Pedido   @relation(fields: [pedidoId], references: [id])
+  verificadoPor Usuario? @relation("AdminVerificadorPago", fields: [verificadoPorId], references: [id])
+
+  @@index([referenciaExterna])
+  @@map("pagos")
+}
+
+// ─── Devoluciones y cambios (7 días, ver docs/business-rules.md) ──────────────
+
+model Devolucion {
+  id              String           @id @default(cuid())
+  pedidoId        String           @unique
+  tipo            TipoDevolucion
+  motivo          String
+  estado          EstadoDevolucion @default(SOLICITADA)
+  gestionadoPorId String?
+  gestionadoEn    DateTime?
+  creadoEn        DateTime         @default(now())
+
+  pedido        Pedido   @relation(fields: [pedidoId], references: [id])
+  gestionadoPor Usuario? @relation("AdminGestorDevolucion", fields: [gestionadoPorId], references: [id])
+
+  @@map("devoluciones")
+}

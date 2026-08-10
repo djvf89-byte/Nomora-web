@@ -1,0 +1,160 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Paleta de marca NOMORA — los 5 colores oficiales del manual, ver docs/prd.md.
+   Todo lo demás (tintes, sombras, superficies) se deriva de estos 5 vía
+   color-mix(), nunca hex nuevos elegidos a mano. */
+:root {
+  --nomora-negro: #0b0b0b;
+  --nomora-blanco-hueso: #f2efe9;
+  --nomora-beige: #cdba9b;
+  --nomora-verde-oliva: #6b705c;
+  --nomora-terracota: #e07a5f;
+}
+
+:root {
+  --background: var(--nomora-blanco-hueso);
+  --foreground: var(--nomora-negro);
+  --card: color-mix(in srgb, var(--nomora-blanco-hueso) 100%, white 40%);
+  --card-foreground: var(--nomora-negro);
+  --popover: color-mix(in srgb, var(--nomora-blanco-hueso) 100%, white 40%);
+  --popover-foreground: var(--nomora-negro);
+  --primary: var(--nomora-negro);
+  --primary-foreground: var(--nomora-blanco-hueso);
+  --secondary: var(--nomora-beige);
+  --secondary-foreground: var(--nomora-negro);
+  --muted: color-mix(in srgb, var(--nomora-beige) 40%, var(--nomora-blanco-hueso) 60%);
+  --muted-foreground: color-mix(in srgb, var(--nomora-negro) 55%, var(--nomora-blanco-hueso) 45%);
+  --accent: var(--nomora-terracota);
+  --accent-foreground: var(--nomora-blanco-hueso);
+  --destructive: #b3261e;
+  --border: color-mix(in srgb, var(--nomora-negro) 12%, var(--nomora-blanco-hueso) 88%);
+  --input: color-mix(in srgb, var(--nomora-negro) 12%, var(--nomora-blanco-hueso) 88%);
+  --ring: var(--nomora-terracota);
+  --chart-1: var(--nomora-terracota);
+  --chart-2: var(--nomora-verde-oliva);
+  --chart-3: var(--nomora-beige);
+  --chart-4: color-mix(in srgb, var(--nomora-beige) 65%, var(--nomora-negro) 35%);
+  --chart-5: var(--nomora-negro);
+  --radius: 0.5rem;
+  --sidebar: var(--nomora-blanco-hueso);
+  --sidebar-foreground: var(--nomora-negro);
+  --sidebar-primary: var(--nomora-negro);
+  --sidebar-primary-foreground: var(--nomora-blanco-hueso);
+  --sidebar-accent: var(--nomora-beige);
+  --sidebar-accent-foreground: var(--nomora-negro);
+  --sidebar-border: color-mix(in srgb, var(--nomora-negro) 12%, var(--nomora-blanco-hueso) 88%);
+  --sidebar-ring: var(--nomora-terracota);
+}
+
+.dark {
+  --background: var(--nomora-negro);
+  --foreground: var(--nomora-blanco-hueso);
+  --card: color-mix(in srgb, var(--nomora-negro) 100%, var(--nomora-blanco-hueso) 8%);
+  --card-foreground: var(--nomora-blanco-hueso);
+  --popover: color-mix(in srgb, var(--nomora-negro) 100%, var(--nomora-blanco-hueso) 8%);
+  --popover-foreground: var(--nomora-blanco-hueso);
+  --primary: var(--nomora-blanco-hueso);
+  --primary-foreground: var(--nomora-negro);
+  --secondary: var(--nomora-verde-oliva);
+  --secondary-foreground: var(--nomora-blanco-hueso);
+  --muted: color-mix(in srgb, var(--nomora-negro) 100%, var(--nomora-blanco-hueso) 15%);
+  --muted-foreground: color-mix(in srgb, var(--nomora-blanco-hueso) 65%, var(--nomora-negro) 35%);
+  --accent: var(--nomora-terracota);
+  --accent-foreground: var(--nomora-negro);
+  --destructive: #e5615a;
+  --border: rgb(242 239 233 / 12%);
+  --input: rgb(242 239 233 / 15%);
+  --ring: var(--nomora-terracota);
+  --chart-1: var(--nomora-terracota);
+  --chart-2: var(--nomora-verde-oliva);
+  --chart-3: var(--nomora-beige);
+  --chart-4: color-mix(in srgb, var(--nomora-beige) 65%, var(--nomora-negro) 35%);
+  --chart-5: var(--nomora-blanco-hueso);
+  --sidebar: color-mix(in srgb, var(--nomora-negro) 100%, var(--nomora-blanco-hueso) 8%);
+  --sidebar-foreground: var(--nomora-blanco-hueso);
+  --sidebar-primary: var(--nomora-blanco-hueso);
+  --sidebar-primary-foreground: var(--nomora-negro);
+  --sidebar-accent: var(--nomora-verde-oliva);
+  --sidebar-accent-foreground: var(--nomora-blanco-hueso);
+  --sidebar-border: rgb(242 239 233 / 12%);
+  --sidebar-ring: var(--nomora-terracota);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@keyframes marquee-left-to-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+.marquee {
+  animation: marquee-left-to-right 22s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    animation: none;
+  }
+}
