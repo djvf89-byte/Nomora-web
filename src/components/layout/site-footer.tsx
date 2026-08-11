@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { Sello } from "@/components/brand/sello"
+import { MusicPlayer } from "@/components/layout/music-player"
 import { useLocale } from "@/lib/i18n/locale-context"
 
 const REDES = [
@@ -37,6 +38,21 @@ export function SiteFooter() {
 
   return (
     <footer className="bg-background">
+      <div
+        className="px-6 py-14 text-center sm:py-20"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--nomora-terracota) 0%, color-mix(in srgb, var(--nomora-terracota) 45%, var(--nomora-verde-oliva) 55%) 50%, var(--nomora-negro) 100%)",
+        }}
+      >
+        <h5 className="mb-6 text-[11px] font-semibold tracking-[0.16em] text-[var(--nomora-blanco-hueso)] uppercase">
+          {t.footer.playlistTitle}
+        </h5>
+        <div className="mx-auto max-w-md">
+          <MusicPlayer />
+        </div>
+      </div>
+
       <div className="mx-auto max-w-6xl px-6 pt-16 pb-10 sm:pt-20">
         <div className="grid grid-cols-1 gap-10 border-b border-border pb-11 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <div>

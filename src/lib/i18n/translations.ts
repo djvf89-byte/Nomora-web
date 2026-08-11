@@ -69,6 +69,7 @@ export const translations = {
       emailPlaceholder: "tu@email.com",
       subscribe: "Sumarme",
       rights: "© 2026 Nomora — Lima, Perú",
+      playlistTitle: "La playlist de tu ruta",
     },
     login: {
       backToStore: "Volver a la tienda",
@@ -78,6 +79,7 @@ export const translations = {
       password: "Contraseña",
       submit: "Ingresar",
       submitting: "Ingresando...",
+      passwordChanged: "Contraseña actualizada. Inicia sesión de nuevo.",
     },
     product: {
       backToCatalog: "← Volver al catálogo",
@@ -183,6 +185,7 @@ export const translations = {
       emailPlaceholder: "you@email.com",
       subscribe: "Sign up",
       rights: "© 2026 Nomora — Lima, Peru",
+      playlistTitle: "The playlist for your route",
     },
     login: {
       backToStore: "Back to the store",
@@ -192,6 +195,7 @@ export const translations = {
       password: "Password",
       submit: "Log in",
       submitting: "Logging in...",
+      passwordChanged: "Password updated. Log in again.",
     },
     product: {
       backToCatalog: "← Back to catalog",

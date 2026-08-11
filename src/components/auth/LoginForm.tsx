@@ -25,7 +25,7 @@ export function LoginForm() {
     <form action={action} className="space-y-4">
       {passwordCambiada && !state?.error && (
         <div className="rounded-md border border-border bg-muted px-4 py-3">
-          <p className="text-sm text-muted-foreground">Contraseña actualizada. Inicia sesión de nuevo.</p>
+          <p className="text-sm text-muted-foreground">{t.login.passwordChanged}</p>
         </div>
       )}
 

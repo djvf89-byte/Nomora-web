@@ -10,21 +10,25 @@ export function CatalogoGrid({ ofertas = {} }: { ofertas?: Record<string, number
   const { t, locale } = useLocale()
 
   return (
-    <section id="catalogo-destacado" className="border-b border-border py-16 sm:py-24">
+    <section
+      id="catalogo-destacado"
+      className="border-b border-border py-16 sm:py-24"
+      style={{
+        background:
+          "linear-gradient(135deg, var(--nomora-terracota) 0%, color-mix(in srgb, var(--nomora-terracota) 45%, var(--nomora-verde-oliva) 55%) 50%, var(--nomora-negro) 100%)",
+      }}
+    >
       <div className="mx-auto max-w-6xl px-6">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-6 sm:mb-13">
           <div>
-            <p
-              className="text-xs font-semibold tracking-[0.16em] uppercase"
-              style={{ color: "color-mix(in srgb, var(--nomora-terracota) 78%, var(--nomora-negro) 22%)" }}
-            >
+            <p className="text-xs font-semibold tracking-[0.16em] text-[var(--nomora-blanco-hueso)] uppercase">
               {t.catalog.eyebrow}
             </p>
-            <h2 className="mt-2.5 text-3xl font-black tracking-[-0.02em] text-foreground sm:text-4xl">
+            <h2 className="mt-2.5 text-3xl font-black tracking-[-0.02em] text-[var(--nomora-blanco-hueso)] sm:text-4xl">
               {t.catalog.heading}
             </h2>
           </div>
-          <p className="max-w-[42ch] text-[15px] text-muted-foreground">{t.catalog.subheading}</p>
+          <p className="max-w-[42ch] text-[15px] text-[var(--nomora-blanco-hueso)]/80">{t.catalog.subheading}</p>
         </div>
 
         <div className="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
