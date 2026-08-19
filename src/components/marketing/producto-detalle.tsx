@@ -26,9 +26,11 @@ export function ProductoDetalle({
     setImagenActiva(nueva?.imagen)
   }, [])
 
-  const galeria = [variante?.imagen, ...(producto.imagenesAdicionales ?? [])].filter(
-    (src): src is string => Boolean(src)
-  )
+  const galeria = [
+    variante?.imagen,
+    ...(variante?.imagenesAdicionales ?? []),
+    ...(producto.imagenesAdicionales ?? []),
+  ].filter((src): src is string => Boolean(src))
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-12 sm:py-16">
