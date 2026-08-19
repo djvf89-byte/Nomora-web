@@ -253,7 +253,14 @@ export const translations = {
   },
 }
 
-export const PRODUCT_TRANSLATIONS: Record<string, { es: { nombre: string; descripcion: string; spec: string }; en: { nombre: string; descripcion: string; spec: string } }> = {
+interface ProductoTexto {
+  nombre: string
+  descripcion: string
+  spec: string
+  notaEspecial?: string
+}
+
+export const PRODUCT_TRANSLATIONS: Record<string, { es: ProductoTexto; en: ProductoTexto }> = {
   tomatodo: {
     es: {
       nombre: "Tomatodo Nomora",
@@ -273,12 +280,14 @@ export const PRODUCT_TRANSLATIONS: Record<string, { es: { nombre: string; descri
       descripcion:
         "Poncho de secado rápido para cambiarte en la playa o después del mar sin pasar frío. Incluye su propia bolsa de guardado (25 x 20 cm aprox.) para llevarlo sin ensuciar el resto de tu mochila.",
       spec: "Microfibra · secado rápido",
+      notaEspecial: "Stock limitado · Nomora x Wai",
     },
     en: {
       nombre: "Beach poncho",
       descripcion:
         "Quick-dry poncho to change at the beach or after the water without getting cold. Comes with its own storage pouch (about 25 x 20 cm) so it doesn't get the rest of your bag wet.",
       spec: "Microfiber · quick-dry",
+      notaEspecial: "Limited stock · Nomora x Wai",
     },
   },
   "toalla-playa": {
@@ -287,12 +296,14 @@ export const PRODUCT_TRANSLATIONS: Record<string, { es: { nombre: string; descri
       descripcion:
         "Toalla grande de secado rápido — y un lugar real del Perú estampado en cada diseño. Gocta, Lima, Máncora: elige la ruta que ya viviste o la que sigue en tu lista.",
       spec: "160 x 80 cm · secado rápido",
+      notaEspecial: "Stock limitado · Nomora x Wai",
     },
     en: {
       nombre: "Beach towel",
       descripcion:
         "Large quick-dry towel — with a real Peruvian spot printed on every design. Gocta, Lima, Máncora: pick the route you've already lived, or the one still on your list.",
       spec: "160 x 80 cm · quick-dry",
+      notaEspecial: "Limited stock · Nomora x Wai",
     },
   },
   "medias-neopreno": {

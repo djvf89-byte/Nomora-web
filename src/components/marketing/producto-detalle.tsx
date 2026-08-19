@@ -75,6 +75,11 @@ export function ProductoDetalle({
         </div>
 
         <div>
+          {texto.notaEspecial && (
+            <span className="mb-3 inline-flex w-fit items-center rounded-full bg-[var(--nomora-terracota)] px-3 py-1 text-[11px] font-semibold tracking-[0.04em] text-[var(--nomora-blanco-hueso)] uppercase">
+              {texto.notaEspecial}
+            </span>
+          )}
           <h1 className="text-3xl font-black tracking-[-0.02em] text-foreground sm:text-4xl">{texto.nombre}</h1>
           <p className="mt-3 font-mono text-xs tracking-[0.06em] text-muted-foreground uppercase">{texto.spec}</p>
           <p className="mt-5 max-w-[48ch] text-[15px] text-muted-foreground">{texto.descripcion}</p>

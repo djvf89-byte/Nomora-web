@@ -64,6 +64,11 @@ export function CatalogoGrid({ ofertas = {} }: { ofertas?: Record<string, number
                     <ProductoIcono slug={producto.slug} />
                   )}
                 </div>
+                {texto.notaEspecial && (
+                  <span className="inline-flex w-fit items-center rounded-full bg-[var(--nomora-terracota)] px-2.5 py-1 text-[10px] font-semibold tracking-[0.04em] text-[var(--nomora-blanco-hueso)] uppercase">
+                    {texto.notaEspecial}
+                  </span>
+                )}
                 <h3 className="text-lg font-semibold tracking-[-0.01em] text-foreground">{texto.nombre}</h3>
                 <p className="font-mono text-[10.5px] tracking-[0.06em] text-muted-foreground uppercase">
                   {texto.spec}
