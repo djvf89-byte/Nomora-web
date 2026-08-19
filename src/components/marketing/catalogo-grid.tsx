@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { CATALOGO } from "@/constants/catalogo"
 import { PRODUCT_TRANSLATIONS } from "@/lib/i18n/translations"
@@ -49,8 +50,19 @@ export function CatalogoGrid({ ofertas = {} }: { ofertas?: Record<string, number
                     −{porcentaje}%
                   </span>
                 )}
-                <div className="flex h-[148px] items-center justify-center p-4">
-                  <ProductoIcono slug={producto.slug} />
+                <div className="relative flex h-[148px] items-center justify-center p-4">
+                  {producto.variantes[0]?.imagen ? (
+                    <Image
+                      src={producto.variantes[0].imagen}
+                      alt={texto.nombre}
+                      fill
+                      unoptimized
+                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-contain p-2"
+                    />
+                  ) : (
+                    <ProductoIcono slug={producto.slug} />
+                  )}
                 </div>
                 <h3 className="text-lg font-semibold tracking-[-0.01em] text-foreground">{texto.nombre}</h3>
                 <p className="font-mono text-[10.5px] tracking-[0.06em] text-muted-foreground uppercase">

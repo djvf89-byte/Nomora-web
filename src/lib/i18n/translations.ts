@@ -84,7 +84,10 @@ export const translations = {
     product: {
       backToCatalog: "← Volver al catálogo",
       size: "Talla",
+      dimensions: "Medidas",
       color: "Color",
+      design: "Diseño",
+      designNote: "Cada diseño es un lugar real del Perú. Colecciónalos.",
       quantity: "Cantidad",
       quantityMinus: "Restar una unidad",
       quantityPlus: "Sumar una unidad",
@@ -200,7 +203,10 @@ export const translations = {
     product: {
       backToCatalog: "← Back to catalog",
       size: "Size",
+      dimensions: "Dimensions",
       color: "Color",
+      design: "Design",
+      designNote: "Every design is a real place in Peru. Collect them.",
       quantity: "Quantity",
       quantityMinus: "Decrease quantity",
       quantityPlus: "Increase quantity",
@@ -264,24 +270,28 @@ export const PRODUCT_TRANSLATIONS: Record<string, { es: { nombre: string; descri
   "poncho-playero": {
     es: {
       nombre: "Poncho playero",
-      descripcion: "Poncho de secado rápido para cambiarte en la playa o después del mar sin pasar frío.",
+      descripcion:
+        "Poncho de secado rápido para cambiarte en la playa o después del mar sin pasar frío. Incluye su propia bolsa de guardado (25 x 20 cm aprox.) para llevarlo sin ensuciar el resto de tu mochila.",
       spec: "Microfibra · secado rápido",
     },
     en: {
       nombre: "Beach poncho",
-      descripcion: "Quick-dry poncho to change at the beach or after the water without getting cold.",
+      descripcion:
+        "Quick-dry poncho to change at the beach or after the water without getting cold. Comes with its own storage pouch (about 25 x 20 cm) so it doesn't get the rest of your bag wet.",
       spec: "Microfiber · quick-dry",
     },
   },
   "toalla-playa": {
     es: {
       nombre: "Toalla de playa",
-      descripcion: "Toalla grande de secado rápido, liviana para llevar en cualquier mochila de viaje.",
+      descripcion:
+        "Toalla grande de secado rápido — y un lugar real del Perú estampado en cada diseño. Gocta, Lima, Máncora: elige la ruta que ya viviste o la que sigue en tu lista.",
       spec: "160 x 80 cm · secado rápido",
     },
     en: {
       nombre: "Beach towel",
-      descripcion: "Large quick-dry towel, light enough to carry in any travel backpack.",
+      descripcion:
+        "Large quick-dry towel — with a real Peruvian spot printed on every design. Gocta, Lima, Máncora: pick the route you've already lived, or the one still on your list.",
       spec: "160 x 80 cm · quick-dry",
     },
   },
@@ -304,6 +314,16 @@ export const COLOR_TRANSLATIONS: Record<string, { es: string; en: string }> = {
   Beige: { es: "Beige", en: "Beige" },
   "Verde oliva": { es: "Verde oliva", en: "Olive green" },
   Terracota: { es: "Terracota", en: "Rust" },
+  Rosa: { es: "Rosa", en: "Pink" },
+  Azul: { es: "Azul", en: "Blue" },
+}
+
+export const DISENO_TRANSLATIONS: Record<string, { es: string; en: string }> = {
+  Gocta: { es: "Gocta", en: "Gocta" },
+  Lima: { es: "Lima", en: "Lima" },
+  "Máncora": { es: "Máncora", en: "Máncora" },
+  Padel: { es: "Pádel", en: "Padel" },
+  "Voley playa": { es: "Vóley playa", en: "Beach volleyball" },
 }
 
 export type Translations = typeof translations.es

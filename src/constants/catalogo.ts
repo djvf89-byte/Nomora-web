@@ -2,6 +2,9 @@ export interface Variante {
   id: string
   talla?: string
   color?: string
+  diseno?: string
+  imagen?: string
+  medida?: string
   stock: number
 }
 
@@ -12,6 +15,7 @@ export interface Producto {
   spec: string
   precioDesde: number
   variantes: Variante[]
+  imagenesAdicionales?: string[]
 }
 
 // Precios y stock ilustrativos dentro del rango objetivo (S/ 80-150, ver docs/prd.md).
@@ -38,11 +42,16 @@ export const CATALOGO: Producto[] = [
     spec: "Microfibra · secado rápido",
     precioDesde: 119,
     variantes: [
-      { id: "poncho-s-negro", talla: "S", color: "Negro", stock: 6 },
-      { id: "poncho-m-negro", talla: "M", color: "Negro", stock: 11 },
-      { id: "poncho-l-negro", talla: "L", color: "Negro", stock: 4 },
-      { id: "poncho-m-beige", talla: "M", color: "Beige", stock: 0 },
+      { id: "poncho-s-oliva", talla: "S", color: "Verde oliva", imagen: "/productos/ponchos/poncho-oliva.webp", medida: "95 x 66 cm", stock: 8 },
+      { id: "poncho-l-oliva", talla: "L", color: "Verde oliva", imagen: "/productos/ponchos/poncho-oliva.webp", medida: "104 x 69 cm", stock: 6 },
+      { id: "poncho-s-rosa", talla: "S", color: "Rosa", imagen: "/productos/ponchos/poncho-rosa.webp", medida: "95 x 66 cm", stock: 5 },
+      { id: "poncho-l-rosa", talla: "L", color: "Rosa", imagen: "/productos/ponchos/poncho-rosa.webp", medida: "104 x 69 cm", stock: 3 },
+      { id: "poncho-s-azul", talla: "S", color: "Azul", imagen: "/productos/ponchos/poncho-azul.webp", medida: "95 x 66 cm", stock: 7 },
+      { id: "poncho-l-azul", talla: "L", color: "Azul", imagen: "/productos/ponchos/poncho-azul.webp", medida: "104 x 69 cm", stock: 0 },
+      { id: "poncho-s-negro", talla: "S", color: "Negro", imagen: "/productos/ponchos/poncho-negro.webp", medida: "95 x 66 cm", stock: 4 },
+      { id: "poncho-l-negro", talla: "L", color: "Negro", imagen: "/productos/ponchos/poncho-negro.webp", medida: "104 x 69 cm", stock: 2 },
     ],
+    imagenesAdicionales: ["/productos/ponchos/poncho-estuche.webp"],
   },
   {
     slug: "toalla-playa",
@@ -51,10 +60,16 @@ export const CATALOGO: Producto[] = [
     spec: "160 x 80 cm · secado rápido",
     precioDesde: 99,
     variantes: [
-      { id: "toalla-beige", color: "Beige", stock: 18 },
-      { id: "toalla-oliva", color: "Verde oliva", stock: 12 },
-      { id: "toalla-terracota", color: "Terracota", stock: 7 },
-      { id: "toalla-negro", color: "Negro", stock: 3 },
+      { id: "toalla-gocta", diseno: "Gocta", imagen: "/productos/toallas/toalla-gocta.webp", stock: 10 },
+      { id: "toalla-lima", diseno: "Lima", imagen: "/productos/toallas/toalla-lima.webp", stock: 14 },
+      { id: "toalla-mancora", diseno: "Máncora", imagen: "/productos/toallas/toalla-mancora.webp", stock: 9 },
+      { id: "toalla-padel", diseno: "Padel", imagen: "/productos/toallas/toalla-padel.webp", stock: 6 },
+      {
+        id: "toalla-voley-playa",
+        diseno: "Voley playa",
+        imagen: "/productos/toallas/toalla-voley-playa.webp",
+        stock: 0,
+      },
     ],
   },
   {

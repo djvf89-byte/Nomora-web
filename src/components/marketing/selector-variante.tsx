@@ -1,9 +1,9 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import type { Producto } from "@/constants/catalogo"
-import { COLOR_TRANSLATIONS } from "@/lib/i18n/translations"
+import type { Producto, Variante } from "@/constants/catalogo"
+import { COLOR_TRANSLATIONS, DISENO_TRANSLATIONS } from "@/lib/i18n/translations"
 import { useLocale } from "@/lib/i18n/locale-context"
 
 const MAX_POR_PEDIDO = 10
@@ -11,9 +11,11 @@ const MAX_POR_PEDIDO = 10
 export function SelectorVariante({
   producto,
   ofertaPorcentaje = 0,
+  onVarianteChange,
 }: {
   producto: Producto
   ofertaPorcentaje?: number
+  onVarianteChange?: (variante: Variante | undefined) => void
 }) {
   const router = useRouter()
   const { t, locale } = useLocale()
@@ -26,12 +28,23 @@ export function SelectorVariante({
     () => [...new Set(producto.variantes.map((v) => v.color).filter(Boolean))] as string[],
     [producto]
   )
+  const disenos = useMemo(
+    () => [...new Set(producto.variantes.map((v) => v.diseno).filter(Boolean))] as string[],
+    [producto]
+  )
 
   const [talla, setTalla] = useState<string | undefined>(tallas[0])
   const [color, setColor] = useState<string | undefined>(colores[0])
+  const [diseno, setDiseno] = useState<string | undefined>(disenos[0])
   const [cantidadElegida, setCantidadElegida] = useState(1)
 
-  const variante = producto.variantes.find((v) => v.talla === talla && v.color === color)
+  const variante = producto.variantes.find(
+    (v) => v.talla === talla && v.color === color && v.diseno === diseno
+  )
+
+  useEffect(() => {
+    onVarianteChange?.(variante)
+  }, [variante, onVarianteChange])
   const disponible = (variante?.stock ?? 0) > 0
   const maxCantidad = Math.min(variante?.stock ?? 1, MAX_POR_PEDIDO)
   // Si al cambiar de variante la cantidad elegida ya no cabe en el stock disponible, se recorta acá
@@ -65,6 +78,11 @@ export function SelectorVariante({
               </button>
             ))}
           </div>
+          {variante?.medida && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              {t.product.dimensions}: {variante.medida}
+            </p>
+          )}
         </div>
       )}
 
@@ -86,6 +104,31 @@ export function SelectorVariante({
                 }`}
               >
                 {COLOR_TRANSLATIONS[valor]?.[locale] ?? valor}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {disenos.length > 0 && (
+        <div>
+          <p className="mb-1 text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+            {t.product.design}
+          </p>
+          <p className="mb-2.5 text-[13px] text-accent">{t.product.designNote}</p>
+          <div className="flex flex-wrap gap-2">
+            {disenos.map((valor) => (
+              <button
+                key={valor}
+                type="button"
+                onClick={() => setDiseno(valor)}
+                className={`rounded-[2px] border px-3.5 py-2 text-sm font-medium transition-colors ${
+                  diseno === valor
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border text-foreground hover:border-foreground"
+                }`}
+              >
+                {DISENO_TRANSLATIONS[valor]?.[locale] ?? valor}
               </button>
             ))}
           </div>
