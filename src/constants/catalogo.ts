@@ -42,12 +42,12 @@ export const CATALOGO: Producto[] = [
     spec: "Microfibra · secado rápido",
     precioDesde: 119,
     variantes: [
+      { id: "poncho-s-azul", talla: "S", color: "Azul", imagen: "/productos/ponchos/poncho-azul.webp", medida: "95 x 66 cm", stock: 7 },
+      { id: "poncho-l-azul", talla: "L", color: "Azul", imagen: "/productos/ponchos/poncho-azul.webp", medida: "104 x 69 cm", stock: 0 },
       { id: "poncho-s-oliva", talla: "S", color: "Verde oliva", imagen: "/productos/ponchos/poncho-oliva.webp", medida: "95 x 66 cm", stock: 8 },
       { id: "poncho-l-oliva", talla: "L", color: "Verde oliva", imagen: "/productos/ponchos/poncho-oliva.webp", medida: "104 x 69 cm", stock: 6 },
       { id: "poncho-s-rosa", talla: "S", color: "Rosa", imagen: "/productos/ponchos/poncho-rosa.webp", medida: "95 x 66 cm", stock: 5 },
       { id: "poncho-l-rosa", talla: "L", color: "Rosa", imagen: "/productos/ponchos/poncho-rosa.webp", medida: "104 x 69 cm", stock: 3 },
-      { id: "poncho-s-azul", talla: "S", color: "Azul", imagen: "/productos/ponchos/poncho-azul.webp", medida: "95 x 66 cm", stock: 7 },
-      { id: "poncho-l-azul", talla: "L", color: "Azul", imagen: "/productos/ponchos/poncho-azul.webp", medida: "104 x 69 cm", stock: 0 },
       { id: "poncho-s-negro", talla: "S", color: "Negro", imagen: "/productos/ponchos/poncho-negro.webp", medida: "95 x 66 cm", stock: 4 },
       { id: "poncho-l-negro", talla: "L", color: "Negro", imagen: "/productos/ponchos/poncho-negro.webp", medida: "104 x 69 cm", stock: 2 },
     ],
@@ -60,9 +60,9 @@ export const CATALOGO: Producto[] = [
     spec: "160 x 80 cm · secado rápido",
     precioDesde: 99,
     variantes: [
+      { id: "toalla-mancora", diseno: "Máncora", imagen: "/productos/toallas/toalla-mancora.webp", stock: 9 },
       { id: "toalla-gocta", diseno: "Gocta", imagen: "/productos/toallas/toalla-gocta.webp", stock: 10 },
       { id: "toalla-lima", diseno: "Lima", imagen: "/productos/toallas/toalla-lima.webp", stock: 14 },
-      { id: "toalla-mancora", diseno: "Máncora", imagen: "/productos/toallas/toalla-mancora.webp", stock: 9 },
       { id: "toalla-padel", diseno: "Padel", imagen: "/productos/toallas/toalla-padel.webp", stock: 6 },
       {
         id: "toalla-voley-playa",
