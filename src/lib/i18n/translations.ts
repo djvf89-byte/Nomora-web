@@ -10,7 +10,7 @@ export const translations = {
       marquee: [
         "Envío {b}incluido{/b} a todo el Perú",
         "Cambios y devoluciones en {b}7 días{/b}",
-        "Cada tomatodo trae su {b}álbum de stickers{/b}",
+        "Cada toalla lleva un {b}lugar real del Perú{/b} estampado",
       ],
     },
     hero: {
@@ -139,7 +139,7 @@ export const translations = {
       marquee: [
         "{b}Free shipping{/b} anywhere in Peru",
         "Returns and exchanges within {b}7 days{/b}",
-        "Every bottle comes with its {b}sticker album{/b}",
+        "Every towel carries a {b}real spot in Peru{/b}",
       ],
     },
     hero: {
