@@ -1,10 +1,16 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import { useLocale } from "@/lib/i18n/locale-context"
+import { limpiarPedidoPendiente } from "@/lib/pedido-pendiente"
 
 export function PedidoConfirmadoContenido({ email, id }: { email: string; id: string }) {
   const { t } = useLocale()
+
+  useEffect(() => {
+    limpiarPedidoPendiente()
+  }, [])
 
   return (
     <main className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-6 py-16 text-center">

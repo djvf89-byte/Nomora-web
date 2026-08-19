@@ -7,6 +7,7 @@ export const translations = {
     nav: {
       admin: "Ingreso administrador",
       cart: "Carrito",
+      cartPending: "tienes un pedido pendiente por terminar",
       marquee: [
         "Envío {b}incluido{/b} a todo el Perú",
         "Cambios y devoluciones en {b}7 días{/b}",
@@ -136,6 +137,7 @@ export const translations = {
     nav: {
       admin: "Admin login",
       cart: "Cart",
+      cartPending: "you have an unfinished order",
       marquee: [
         "{b}Free shipping{/b} anywhere in Peru",
         "Returns and exchanges within {b}7 days{/b}",

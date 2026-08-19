@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Sello } from "@/components/brand/sello"
 import { LanguageToggle } from "./language-toggle"
 import { useLocale } from "@/lib/i18n/locale-context"
+import { usePedidoPendiente } from "@/lib/pedido-pendiente"
 
 function renderMensaje(texto: string) {
   const partes = texto.split(/(\{b\}.*?\{\/b\})/g)
@@ -34,6 +35,10 @@ function TiraMensajes({ mensajes }: { mensajes: readonly string[] }) {
 
 export function SiteNav() {
   const { t } = useLocale()
+  const pedidoPendiente = usePedidoPendiente()
+  const cartHref = pedidoPendiente
+    ? `/checkout?producto=${pedidoPendiente.productoSlug}&variante=${pedidoPendiente.varianteId}&cantidad=${pedidoPendiente.cantidad}`
+    : "/catalogo"
 
   return (
     <>
@@ -57,12 +62,21 @@ export function SiteNav() {
 
           <div className="flex items-center justify-self-end gap-2.5 sm:gap-4">
             <LanguageToggle />
-            <Link href="/catalogo" aria-label={t.nav.cart} className="text-foreground">
+            <Link
+              href={cartHref}
+              aria-label={pedidoPendiente ? `${t.nav.cart} — ${t.nav.cartPending}` : t.nav.cart}
+              className="relative text-foreground"
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.8h8.4a2 2 0 0 0 2-1.6L22 9H6" />
                 <circle cx="10" cy="21" r="1" />
                 <circle cx="18" cy="21" r="1" />
               </svg>
+              {pedidoPendiente && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">
+                  1
+                </span>
+              )}
             </Link>
           </div>
         </div>

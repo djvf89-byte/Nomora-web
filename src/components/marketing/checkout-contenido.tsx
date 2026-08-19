@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { Producto, Variante } from "@/constants/catalogo"
 import { useLocale } from "@/lib/i18n/locale-context"
+import { marcarPedidoPendiente } from "@/lib/pedido-pendiente"
 import { CheckoutForm } from "./checkout-form"
 import { ResumenPedido } from "./resumen-pedido"
 
@@ -19,6 +20,10 @@ export function CheckoutContenido({
 }) {
   const { t } = useLocale()
   const [cupon, setCupon] = useState<{ codigo: string; porcentaje: number } | null>(null)
+
+  useEffect(() => {
+    marcarPedidoPendiente({ productoSlug: producto.slug, varianteId: variante.id, cantidad })
+  }, [producto.slug, variante.id, cantidad])
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12 sm:py-16">
