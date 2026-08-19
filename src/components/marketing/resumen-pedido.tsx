@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import Image from "next/image"
 import type { Producto, Variante } from "@/constants/catalogo"
 import { COLOR_TRANSLATIONS, PRODUCT_TRANSLATIONS } from "@/lib/i18n/translations"
 import { useLocale } from "@/lib/i18n/locale-context"
@@ -64,19 +65,28 @@ export function ResumenPedido({
       <p className="mb-3 text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
         {t.checkout.yourOrder}
       </p>
-      <div className="flex gap-3.5">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center bg-muted p-2.5">
+      <div className="relative flex h-44 items-center justify-center overflow-hidden bg-muted p-6">
+        {variante.imagen ? (
+          <Image
+            src={variante.imagen}
+            alt={texto.nombre}
+            fill
+            unoptimized
+            sizes="320px"
+            className="object-contain p-4"
+          />
+        ) : (
           <ProductoIcono slug={producto.slug} />
-        </div>
-        <div>
-          <p className="text-sm font-medium text-foreground">{texto.nombre}</p>
-          <p className="text-xs text-muted-foreground">
-            {[variante.talla, colorTraducido].filter(Boolean).join(" · ")}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t.checkout.quantity}: {cantidad} × S/ {producto.precioDesde}
-          </p>
-        </div>
+        )}
+      </div>
+      <div className="mt-3.5">
+        <p className="text-sm font-medium text-foreground">{texto.nombre}</p>
+        <p className="text-xs text-muted-foreground">
+          {[variante.talla, colorTraducido].filter(Boolean).join(" · ")}
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {t.checkout.quantity}: {cantidad} × S/ {producto.precioDesde}
+        </p>
       </div>
 
       {ofertaPorcentaje > 0 && !cuponEsElAplicado && (
