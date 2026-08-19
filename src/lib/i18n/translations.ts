@@ -20,7 +20,6 @@ export const translations = {
       headline2: "tu ruta.",
       deck: "Nomora no es para todos. Es para quienes no se quedan quietos: productos para la aventura, sin atarse a un solo terreno.",
       ctaPrimary: "Explorar catálogo",
-      ctaSecondary: "Conoce el álbum",
     },
     statement: {
       eyebrow: "El concepto",
@@ -150,7 +149,6 @@ export const translations = {
       headline2: "your route.",
       deck: "Nomora isn't for everyone. It's for the ones who never sit still: gear for adventure, not tied to one terrain.",
       ctaPrimary: "Explore catalog",
-      ctaSecondary: "See the album",
     },
     statement: {
       eyebrow: "The concept",

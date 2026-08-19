@@ -40,12 +40,6 @@ export function Hero() {
           >
             {t.hero.ctaPrimary}
           </Link>
-          <Link
-            href="/#album"
-            className="inline-flex items-center rounded-[2px] border border-white/50 px-8 py-3.5 text-xs font-semibold tracking-[0.16em] text-[var(--nomora-blanco-hueso)] uppercase transition-colors hover:border-[var(--nomora-blanco-hueso)] hover:bg-[var(--nomora-blanco-hueso)] hover:text-[var(--nomora-negro)]"
-          >
-            {t.hero.ctaSecondary}
-          </Link>
         </div>
 
         <svg
