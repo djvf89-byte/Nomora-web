@@ -1,7 +1,7 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
-import { LogoNomoraFull } from "@/components/brand/isotipo"
 import { HeroVideoBackground } from "@/components/marketing/hero-video-background"
 import { useLocale } from "@/lib/i18n/locale-context"
 
@@ -19,7 +19,15 @@ export function Hero() {
         }}
       />
       <div className="relative z-[2] mx-auto flex max-w-6xl flex-col items-center px-6 pt-16 text-center sm:pt-24">
-        <LogoNomoraFull className="mb-7 h-auto w-[220px] text-[var(--nomora-blanco-hueso)] sm:w-[280px]" />
+        <Image
+          src="/nomora-logo-hero.webp"
+          alt="Nomora"
+          width={1774}
+          height={887}
+          priority
+          unoptimized
+          className="mb-7 h-auto w-[220px] sm:w-[280px]"
+        />
         <p
           className="mb-5 text-xs font-semibold tracking-[0.3em] uppercase"
           style={{ color: "color-mix(in srgb, var(--nomora-terracota) 55%, var(--nomora-blanco-hueso) 45%)" }}

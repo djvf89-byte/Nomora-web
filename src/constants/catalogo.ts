@@ -30,10 +30,17 @@ export const CATALOGO: Producto[] = [
     spec: "Acero · 750 ml · álbum incluido",
     precioDesde: 89,
     variantes: [
-      { id: "tomatodo-negro", color: "Negro", stock: 24 },
-      { id: "tomatodo-beige", color: "Beige", stock: 15 },
-      { id: "tomatodo-oliva", color: "Verde oliva", stock: 9 },
-      { id: "tomatodo-terracota", color: "Terracota", stock: 0 },
+      {
+        id: "tomatodo-negro",
+        color: "Negro",
+        imagen: "/productos/tomatodos/tomatodo-negro.webp",
+        imagenesAdicionales: [
+          "/productos/tomatodos/tomatodo-negro-angulo-2.webp",
+          "/productos/tomatodos/tomatodo-negro-angulo-3.webp",
+          "/productos/tomatodos/tomatodo-negro-angulo-4.webp",
+        ],
+        stock: 0,
+      },
     ],
   },
   {
@@ -144,10 +151,10 @@ export const CATALOGO: Producto[] = [
     spec: "Neopreno 3mm",
     precioDesde: 85,
     variantes: [
-      { id: "medias-s", talla: "S", stock: 10 },
-      { id: "medias-m", talla: "M", stock: 14 },
-      { id: "medias-l", talla: "L", stock: 8 },
-      { id: "medias-xl", talla: "XL", stock: 0 },
+      { id: "medias-s", talla: "S", imagen: "/productos/medias-neopreno.webp", stock: 10 },
+      { id: "medias-m", talla: "M", imagen: "/productos/medias-neopreno.webp", stock: 14 },
+      { id: "medias-l", talla: "L", imagen: "/productos/medias-neopreno.webp", stock: 8 },
+      { id: "medias-xl", talla: "XL", imagen: "/productos/medias-neopreno.webp", stock: 0 },
     ],
   },
 ]
