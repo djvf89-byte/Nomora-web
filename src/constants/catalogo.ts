@@ -34,11 +34,7 @@ export const CATALOGO: Producto[] = [
         id: "tomatodo-negro",
         color: "Negro",
         imagen: "/productos/tomatodos/tomatodo-negro.webp",
-        imagenesAdicionales: [
-          "/productos/tomatodos/tomatodo-negro-angulo-2.webp",
-          "/productos/tomatodos/tomatodo-negro-angulo-3.webp",
-          "/productos/tomatodos/tomatodo-negro-angulo-4.webp",
-        ],
+        imagenesAdicionales: ["/productos/tomatodos/tomatodo-negro-posterior.webp"],
         stock: 0,
       },
     ],
