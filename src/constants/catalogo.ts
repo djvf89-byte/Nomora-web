@@ -26,8 +26,8 @@ export const CATALOGO: Producto[] = [
     slug: "tomatodo",
     nombre: "Tomatodo Nomora",
     descripcion:
-      "Botella de acero con álbum de stickers coleccionables incluido. Cada aventura suma un sticker nuevo.",
-    spec: "Acero · 750 ml · álbum incluido",
+      "Botella de acero con álbum de 40 stickers coleccionables incluido: un diseño por cada destino y experiencia del Perú. Cada aventura que vives suma un sticker nuevo a tu álbum.",
+    spec: "Acero · 750 ml · álbum de 40 stickers incluido",
     precioDesde: 89,
     variantes: [
       {
@@ -38,6 +38,7 @@ export const CATALOGO: Producto[] = [
         stock: 0,
       },
     ],
+    imagenesAdicionales: ["/productos/tomatodos/album-stickers.webp"],
   },
   {
     slug: "poncho-playero",
@@ -147,9 +148,9 @@ export const CATALOGO: Producto[] = [
     spec: "Neopreno 3mm",
     precioDesde: 85,
     variantes: [
-      { id: "medias-s", talla: "S", imagen: "/productos/medias-neopreno.webp", stock: 10 },
-      { id: "medias-m", talla: "M", imagen: "/productos/medias-neopreno.webp", stock: 14 },
-      { id: "medias-l", talla: "L", imagen: "/productos/medias-neopreno.webp", stock: 8 },
+      { id: "medias-s", talla: "S", imagen: "/productos/medias-neopreno.webp", stock: 0 },
+      { id: "medias-m", talla: "M", imagen: "/productos/medias-neopreno.webp", stock: 0 },
+      { id: "medias-l", talla: "L", imagen: "/productos/medias-neopreno.webp", stock: 0 },
       { id: "medias-xl", talla: "XL", imagen: "/productos/medias-neopreno.webp", stock: 0 },
     ],
   },

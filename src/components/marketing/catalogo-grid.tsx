@@ -45,10 +45,16 @@ export function CatalogoGrid({ ofertas = {} }: { ofertas?: Record<string, number
                 href={`/catalogo/${producto.slug}`}
                 className="relative flex min-h-[400px] flex-col gap-3.5 bg-background px-6 py-7 transition-colors hover:bg-muted"
               >
-                {porcentaje > 0 && (
+                {porcentaje > 0 ? (
                   <span className="absolute top-4 right-4 rounded-full bg-accent px-2.5 py-1 text-[11px] font-semibold text-accent-foreground">
                     −{porcentaje}%
                   </span>
+                ) : (
+                  texto.etiquetaOferta && (
+                    <span className="absolute top-4 right-4 rounded-full bg-accent px-2.5 py-1 text-[11px] font-semibold tracking-[0.02em] text-accent-foreground uppercase">
+                      {texto.etiquetaOferta}
+                    </span>
+                  )
                 )}
                 <div className="relative flex h-[228px] items-center justify-center p-2">
                   {producto.variantes[0]?.imagen ? (

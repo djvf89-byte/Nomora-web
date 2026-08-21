@@ -10,7 +10,7 @@ export const translations = {
       cartPending: "tienes un pedido pendiente por terminar",
       marquee: [
         "Envío {b}incluido{/b} a todo el Perú",
-        "Cambios y devoluciones en {b}7 días{/b}",
+        "Diseñado y hecho {b}en el Perú{/b}",
         "Cada toalla lleva un {b}lugar real del Perú{/b} estampado",
       ],
     },
@@ -139,7 +139,7 @@ export const translations = {
       cartPending: "you have an unfinished order",
       marquee: [
         "{b}Free shipping{/b} anywhere in Peru",
-        "Returns and exchanges within {b}7 days{/b}",
+        "Designed and made {b}in Peru{/b}",
         "Every towel carries a {b}real spot in Peru{/b}",
       ],
     },
@@ -258,6 +258,7 @@ interface ProductoTexto {
   descripcion: string
   spec: string
   notaEspecial?: string
+  etiquetaOferta?: string
 }
 
 export const PRODUCT_TRANSLATIONS: Record<string, { es: ProductoTexto; en: ProductoTexto }> = {
@@ -265,13 +266,14 @@ export const PRODUCT_TRANSLATIONS: Record<string, { es: ProductoTexto; en: Produ
     es: {
       nombre: "Tomatodo Nomora",
       descripcion:
-        "Botella de acero con álbum de stickers coleccionables incluido. Cada aventura suma un sticker nuevo.",
-      spec: "Acero · 750 ml · álbum incluido",
+        "Botella de acero con álbum de 40 stickers coleccionables incluido: un diseño por cada destino y experiencia del Perú — Machu Picchu, Laguna 69, Cañón del Colca, sandboard en Huacachina y más. Cada aventura que vives suma un sticker nuevo a tu álbum.",
+      spec: "Acero · 750 ml · álbum de 40 stickers incluido",
     },
     en: {
       nombre: "Nomora Bottle",
-      descripcion: "Steel bottle with a collectible sticker album included. Every adventure adds a new sticker.",
-      spec: "Steel · 750 ml · album included",
+      descripcion:
+        "Steel bottle with a 40-sticker collectible album included: one design for every Peruvian destination and experience — Machu Picchu, Laguna 69, Colca Canyon, sandboarding in Huacachina, and more. Every adventure you live adds a new sticker to your album.",
+      spec: "Steel · 750 ml · 40-sticker album included",
     },
   },
   "poncho-playero": {
@@ -281,6 +283,7 @@ export const PRODUCT_TRANSLATIONS: Record<string, { es: ProductoTexto; en: Produ
         "Poncho de secado rápido para cambiarte en la playa o después del mar sin pasar frío. Incluye su propia bolsa de guardado (25 x 20 cm aprox.) para llevarlo sin ensuciar el resto de tu mochila.",
       spec: "Microfibra · secado rápido",
       notaEspecial: "Stock limitado · Nomora x Wai",
+      etiquetaOferta: "¡Oferta!",
     },
     en: {
       nombre: "Beach poncho",
@@ -288,6 +291,7 @@ export const PRODUCT_TRANSLATIONS: Record<string, { es: ProductoTexto; en: Produ
         "Quick-dry poncho to change at the beach or after the water without getting cold. Comes with its own storage pouch (about 25 x 20 cm) so it doesn't get the rest of your bag wet.",
       spec: "Microfiber · quick-dry",
       notaEspecial: "Limited stock · Nomora x Wai",
+      etiquetaOferta: "Sale!",
     },
   },
   "toalla-playa": {
@@ -297,6 +301,7 @@ export const PRODUCT_TRANSLATIONS: Record<string, { es: ProductoTexto; en: Produ
         "Toalla grande de secado rápido — y un lugar real del Perú estampado en cada diseño. Gocta, Lima, Máncora: elige la ruta que ya viviste o la que sigue en tu lista.",
       spec: "160 x 80 cm · secado rápido",
       notaEspecial: "Stock limitado · Nomora x Wai",
+      etiquetaOferta: "¡Oferta!",
     },
     en: {
       nombre: "Beach towel",
@@ -304,6 +309,7 @@ export const PRODUCT_TRANSLATIONS: Record<string, { es: ProductoTexto; en: Produ
         "Large quick-dry towel — with a real Peruvian spot printed on every design. Gocta, Lima, Máncora: pick the route you've already lived, or the one still on your list.",
       spec: "160 x 80 cm · quick-dry",
       notaEspecial: "Limited stock · Nomora x Wai",
+      etiquetaOferta: "Sale!",
     },
   },
   "medias-neopreno": {
