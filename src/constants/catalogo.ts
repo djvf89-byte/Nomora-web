@@ -126,7 +126,7 @@ export const CATALOGO: Producto[] = [
     slug: "toalla-playa",
     nombre: "Toalla de playa",
     descripcion: "Toalla grande de secado rápido, liviana para llevar en cualquier mochila de viaje.",
-    spec: "160 x 80 cm · secado rápido",
+    spec: "140 x 70 cm · secado rápido",
     precioDesde: 99,
     variantes: [
       { id: "toalla-mancora", diseno: "Máncora", imagen: "/productos/toallas/toalla-mancora.webp", stock: 0 },

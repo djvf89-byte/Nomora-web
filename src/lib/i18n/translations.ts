@@ -299,7 +299,7 @@ export const PRODUCT_TRANSLATIONS: Record<string, { es: ProductoTexto; en: Produ
       nombre: "Toalla de playa",
       descripcion:
         "Toalla grande de secado rápido — y un lugar real del Perú estampado en cada diseño. Gocta, Lima, Máncora: elige la ruta que ya viviste o la que sigue en tu lista.",
-      spec: "160 x 80 cm · secado rápido",
+      spec: "140 x 70 cm · secado rápido",
       notaEspecial: "Stock limitado · Nomora x Wai",
       etiquetaOferta: "¡Oferta!",
     },
@@ -307,7 +307,7 @@ export const PRODUCT_TRANSLATIONS: Record<string, { es: ProductoTexto; en: Produ
       nombre: "Beach towel",
       descripcion:
         "Large quick-dry towel — with a real Peruvian spot printed on every design. Gocta, Lima, Máncora: pick the route you've already lived, or the one still on your list.",
-      spec: "160 x 80 cm · quick-dry",
+      spec: "140 x 70 cm · quick-dry",
       notaEspecial: "Limited stock · Nomora x Wai",
       etiquetaOferta: "Sale!",
     },
