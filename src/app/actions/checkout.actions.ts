@@ -7,6 +7,7 @@ import { crearPedidoInvitado } from "@/services/pedido.service"
 import { validarCupon, registrarUsoCupon } from "@/services/cupon.service"
 import { obtenerOfertasActivasPorProducto } from "@/services/oferta.service"
 import { obtenerStockPorVariante } from "@/services/producto.service"
+import { crearPreferenciaPago } from "@/services/mercadopago.service"
 import { calcularPrecioConDescuento, calcularEnvioCentimos } from "@/lib/precios"
 
 // Validación "en vivo" de un cupón, llamada desde el checkout antes de enviar el pedido.
@@ -137,5 +138,27 @@ export async function checkoutAction(formData: FormData) {
     }
   }
 
+  // Tarjeta va al checkout hospedado de MercadoPago; el webhook confirma el pago solo
+  // (ver /api/mercadopago/webhook) y marca PAGADO — no pasa por verificación manual del admin.
+  let checkoutUrl: string | undefined
+  if (parsed.data.metodoPago === "TARJETA") {
+    const totalCentimos = precioFinalCentimos + envioCentimos
+    try {
+      const preferencia = await crearPreferenciaPago(
+        pedidoId,
+        `Pedido Nomora #${pedidoId.slice(-8)}`,
+        totalCentimos,
+        parsed.data.email
+      )
+      checkoutUrl = preferencia.sandbox_init_point ?? preferencia.init_point
+    } catch (err) {
+      // El pedido ya quedó como PENDIENTE — si MercadoPago falla, lo mandamos a la
+      // confirmación igual; el admin puede procesar el pago manualmente después.
+      console.error("Error creando preferencia de MercadoPago:", err)
+    }
+  }
+
+  // redirect() lanza internamente — nunca debe llamarse dentro de un try/catch.
+  if (checkoutUrl) redirect(checkoutUrl)
   redirect(`/pedido-confirmado/${pedidoId}`)
 }
