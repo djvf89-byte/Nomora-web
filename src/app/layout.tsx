@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { IsotipoDefs } from "@/components/brand/isotipo-defs"
 import { LocaleProvider } from "@/lib/i18n/locale-context"
+import { SITE_URL } from "@/lib/site"
 import "./globals.css"
 
 const inter = Inter({
@@ -9,10 +10,8 @@ const inter = Inter({
   subsets: ["latin"],
 })
 
-const BASE_URL = process.env.AUTH_URL ?? "https://nomora.pe"
-
 export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "NOMORA — Empieza tu ruta",
     template: "%s | NOMORA",
@@ -20,12 +19,12 @@ export const metadata: Metadata = {
   description:
     "Productos para la aventura: tomatodo con álbum de stickers coleccionables, ponchos playeros, toallas y medias de neopreno.",
   alternates: {
-    canonical: BASE_URL,
+    canonical: SITE_URL,
   },
   openGraph: {
     type: "website",
     locale: "es_PE",
-    url: BASE_URL,
+    url: SITE_URL,
     siteName: "NOMORA",
     title: "NOMORA — Empieza tu ruta",
     description:
