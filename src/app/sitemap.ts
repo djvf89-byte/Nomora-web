@@ -6,6 +6,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const rutasEstaticas: MetadataRoute.Sitemap = [
     { url: SITE_URL, changeFrequency: "weekly", priority: 1 },
     { url: `${SITE_URL}/catalogo`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${SITE_URL}/terminos`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/privacidad`, changeFrequency: "yearly", priority: 0.3 },
   ]
 
   const rutasProductos: MetadataRoute.Sitemap = CATALOGO.map((producto) => ({

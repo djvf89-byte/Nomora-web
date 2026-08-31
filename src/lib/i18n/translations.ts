@@ -71,6 +71,8 @@ export const translations = {
       subscribe: "Sumarme",
       rights: "© 2026 Nomora — Lima, Perú",
       playlistTitle: "La playlist de tu ruta",
+      terminos: "Términos y condiciones",
+      privacidad: "Privacidad",
     },
     login: {
       backToStore: "Volver a la tienda",
@@ -210,6 +212,8 @@ export const translations = {
       subscribe: "Sign up",
       rights: "© 2026 Nomora — Lima, Peru",
       playlistTitle: "The playlist for your route",
+      terminos: "Terms and conditions",
+      privacidad: "Privacy",
     },
     login: {
       backToStore: "Back to the store",
