@@ -6,6 +6,7 @@ import { obtenerOfertaActivaPorProducto } from "@/services/oferta.service"
 import { dbSafe } from "@/lib/db-safe"
 import { PRODUCT_TRANSLATIONS } from "@/lib/i18n/translations"
 import { SITE_URL } from "@/lib/site"
+import { productoJsonLd, breadcrumbJsonLd } from "@/lib/structured-data"
 
 export function generateStaticParams() {
   return CATALOGO.map((producto) => ({ slug: producto.slug }))
@@ -50,6 +51,20 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
   if (!producto) notFound()
 
   const { data: ofertaPorcentaje } = await dbSafe(() => obtenerOfertaActivaPorProducto(slug), 0)
+  const texto = PRODUCT_TRANSLATIONS[slug].es
+  const url = `${SITE_URL}/catalogo/${slug}`
 
-  return <ProductoDetalle producto={producto} ofertaPorcentaje={ofertaPorcentaje} />
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productoJsonLd(producto, texto.nombre, texto.descripcion, url)) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd(texto.nombre, url)) }}
+      />
+      <ProductoDetalle producto={producto} ofertaPorcentaje={ofertaPorcentaje} />
+    </>
+  )
 }
