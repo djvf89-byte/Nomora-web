@@ -86,11 +86,6 @@ export function SiteFooter() {
                   {t.footer.catalogo}
                 </Link>
               </li>
-              <li>
-                <Link href="/#album" className="text-foreground hover:text-accent">
-                  {t.footer.album}
-                </Link>
-              </li>
             </ul>
           </div>
 

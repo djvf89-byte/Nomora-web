@@ -87,9 +87,21 @@ export default async function PedidoDetallePage({ params }: { params: Promise<{ 
               </li>
             ))}
           </ul>
-          <div className="mt-3 flex items-center justify-between border-t border-border pt-3 text-sm font-semibold">
-            <span>Total</span>
-            <span>{formatSoles(pedido.totalCentimos)}</span>
+          <div className="mt-3 space-y-1 border-t border-border pt-3 text-sm">
+            {pedido.descuentoCentimos > 0 && (
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span>Descuento</span>
+                <span>−{formatSoles(pedido.descuentoCentimos)}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between text-muted-foreground">
+              <span>Envío</span>
+              <span>{pedido.envioCentimos > 0 ? formatSoles(pedido.envioCentimos) : "Gratis"}</span>
+            </div>
+            <div className="flex items-center justify-between font-semibold">
+              <span>Total</span>
+              <span>{formatSoles(pedido.totalCentimos)}</span>
+            </div>
           </div>
         </section>
       </div>

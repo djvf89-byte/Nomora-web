@@ -231,6 +231,7 @@ model Pedido {
   estado            EstadoPedido @default(PENDIENTE)
   subtotalCentimos  Int
   descuentoCentimos Int          @default(0)
+  envioCentimos     Int          @default(0)
   cuponCodigo       String?
   totalCentimos     Int
   creadoEn          DateTime     @default(now())

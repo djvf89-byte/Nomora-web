@@ -28,7 +28,7 @@ export const CATALOGO: Producto[] = [
     descripcion:
       "Botella de acero con álbum de 40 stickers coleccionables incluido: un diseño por cada destino y experiencia del Perú. Cada aventura que vives suma un sticker nuevo a tu álbum.",
     spec: "Acero · 750 ml · álbum de 40 stickers incluido",
-    precioDesde: 89,
+    precioDesde: 99,
     variantes: [
       {
         id: "tomatodo-negro",
@@ -45,7 +45,7 @@ export const CATALOGO: Producto[] = [
     nombre: "Poncho playero",
     descripcion: "Poncho de secado rápido para cambiarte en la playa o después del mar sin pasar frío.",
     spec: "Microfibra · secado rápido",
-    precioDesde: 119,
+    precioDesde: 90,
     variantes: [
       {
         id: "poncho-s-azul",
@@ -127,7 +127,7 @@ export const CATALOGO: Producto[] = [
     nombre: "Toalla de playa",
     descripcion: "Toalla grande de secado rápido, liviana para llevar en cualquier mochila de viaje.",
     spec: "140 x 70 cm · secado rápido",
-    precioDesde: 99,
+    precioDesde: 70,
     variantes: [
       { id: "toalla-mancora", diseno: "Máncora", imagen: "/productos/toallas/toalla-mancora.webp", stock: 0 },
       { id: "toalla-gocta", diseno: "Gocta", imagen: "/productos/toallas/toalla-gocta.webp", stock: 10 },
@@ -146,7 +146,7 @@ export const CATALOGO: Producto[] = [
     nombre: "Medias de neopreno",
     descripcion: "Medias de neopreno para actividades acuáticas, protegen del frío y de superficies filosas.",
     spec: "Neopreno 3mm",
-    precioDesde: 85,
+    precioDesde: 60,
     variantes: [
       { id: "medias-s", talla: "S", imagen: "/productos/medias-neopreno.webp", stock: 0 },
       { id: "medias-m", talla: "M", imagen: "/productos/medias-neopreno.webp", stock: 0 },

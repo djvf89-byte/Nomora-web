@@ -4,6 +4,7 @@ import type { EstadoPedido } from "@prisma/client"
 
 interface DescuentoResuelto {
   descuentoCentimos: number
+  envioCentimos?: number
   cuponCodigo?: string
 }
 
@@ -17,7 +18,8 @@ export async function crearPedidoInvitado(
   descuento: DescuentoResuelto = { descuentoCentimos: 0 }
 ) {
   const subtotalCentimos = precioUnitarioCentimos * datos.cantidad
-  const totalCentimos = Math.max(subtotalCentimos - descuento.descuentoCentimos, 0)
+  const envioCentimos = descuento.envioCentimos ?? 0
+  const totalCentimos = Math.max(subtotalCentimos - descuento.descuentoCentimos, 0) + envioCentimos
 
   return prisma.$transaction(async (tx) => {
     const direccion = await tx.direccion.create({
@@ -38,6 +40,7 @@ export async function crearPedidoInvitado(
         direccionId: direccion.id,
         subtotalCentimos,
         descuentoCentimos: descuento.descuentoCentimos,
+        envioCentimos,
         cuponCodigo: descuento.cuponCodigo ?? null,
         totalCentimos,
         items: {

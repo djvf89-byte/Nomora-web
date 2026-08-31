@@ -6,7 +6,12 @@ import type { Producto, Variante } from "@/constants/catalogo"
 import { COLOR_TRANSLATIONS, PRODUCT_TRANSLATIONS } from "@/lib/i18n/translations"
 import { useLocale } from "@/lib/i18n/locale-context"
 import { validarCuponAction } from "@/app/actions/checkout.actions"
-import { calcularPrecioConDescuento } from "@/lib/precios"
+import {
+  calcularPrecioConDescuento,
+  calcularEnvioCentimos,
+  esCiudadLima,
+  UMBRAL_ENVIO_GRATIS_LIMA_CENTIMOS,
+} from "@/lib/precios"
 import { ProductoIcono } from "./producto-icono"
 
 interface CuponAplicado {
@@ -19,12 +24,14 @@ export function ResumenPedido({
   variante,
   cantidad,
   ofertaPorcentaje,
+  ciudad,
   onCuponChange,
 }: {
   producto: Producto
   variante: Variante
   cantidad: number
   ofertaPorcentaje: number
+  ciudad: string
   onCuponChange: (cupon: CuponAplicado | null) => void
 }) {
   const { t, locale } = useLocale()
@@ -43,6 +50,10 @@ export function ResumenPedido({
     cupon?.porcentaje ?? 0
   )
   const cuponEsElAplicado = !!cupon && cupon.porcentaje >= ofertaPorcentaje
+  const esLima = esCiudadLima(ciudad)
+  const faltanteEnvioCentimos = UMBRAL_ENVIO_GRATIS_LIMA_CENTIMOS - precioFinalCentimos
+  const envioCentimos = calcularEnvioCentimos(ciudad, precioFinalCentimos)
+  const totalConEnvioCentimos = precioFinalCentimos + envioCentimos
 
   function aplicarCupon() {
     setErrorCupon(undefined)
@@ -137,13 +148,35 @@ export function ResumenPedido({
             <span>− S/ {(descuentoCentimos / 100).toFixed(2)}</span>
           </div>
         )}
+        <div className="flex items-center justify-between text-muted-foreground">
+          <span>{t.checkout.shipping}</span>
+          <span>
+            {esLima
+              ? envioCentimos > 0
+                ? `S/ ${(envioCentimos / 100).toFixed(2)}`
+                : t.checkout.shippingFree
+              : t.checkout.shippingPending}
+          </span>
+        </div>
         <div className="flex items-baseline justify-between pt-1.5 text-base">
           <span className="text-muted-foreground">{t.checkout.total}</span>
-          <b className="text-lg text-foreground">S/ {(precioFinalCentimos / 100).toFixed(2)}</b>
+          <b className="text-lg text-foreground">S/ {(totalConEnvioCentimos / 100).toFixed(2)}</b>
         </div>
       </div>
 
-      <p className="mt-3 text-xs text-muted-foreground">{t.checkout.shippingNote}</p>
+      {esLima ? (
+        faltanteEnvioCentimos <= 0 ? (
+          <p className="mt-3 text-xs font-medium text-accent">{t.checkout.freeShippingUnlocked}</p>
+        ) : (
+          <p className="mt-3 text-xs text-muted-foreground">
+            {t.checkout.freeShippingMissingPrefix}
+            {(faltanteEnvioCentimos / 100).toFixed(2)}
+            {t.checkout.freeShippingMissingSuffix}
+          </p>
+        )
+      ) : (
+        <p className="mt-3 text-xs text-muted-foreground">{t.checkout.shippingProvincia}</p>
+      )}
     </aside>
   )
 }

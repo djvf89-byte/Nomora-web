@@ -20,6 +20,7 @@ export function CheckoutContenido({
 }) {
   const { t } = useLocale()
   const [cupon, setCupon] = useState<{ codigo: string; porcentaje: number } | null>(null)
+  const [ciudad, setCiudad] = useState("Lima")
 
   useEffect(() => {
     marcarPedidoPendiente({ productoSlug: producto.slug, varianteId: variante.id, cantidad })
@@ -35,6 +36,7 @@ export function CheckoutContenido({
           varianteId={variante.id}
           cantidad={cantidad}
           cuponCodigo={cupon && cupon.porcentaje >= ofertaPorcentaje ? cupon.codigo : undefined}
+          onCiudadChange={setCiudad}
         />
 
         <ResumenPedido
@@ -42,6 +44,7 @@ export function CheckoutContenido({
           variante={variante}
           cantidad={cantidad}
           ofertaPorcentaje={ofertaPorcentaje}
+          ciudad={ciudad}
           onCuponChange={setCupon}
         />
       </div>

@@ -16,11 +16,13 @@ export function CheckoutForm({
   varianteId,
   cantidad,
   cuponCodigo,
+  onCiudadChange,
 }: {
   productoSlug: string
   varianteId: string
   cantidad: number
   cuponCodigo?: string
+  onCiudadChange?: (ciudad: string) => void
 }) {
   const { t } = useLocale()
   const [state, action, isPending] = useActionState(
@@ -81,7 +83,14 @@ export function CheckoutForm({
           <label htmlFor="ciudad" className="text-sm font-medium">
             {t.checkout.city}
           </label>
-          <input id="ciudad" name="ciudad" required defaultValue="Lima" className={inputClass} />
+          <input
+            id="ciudad"
+            name="ciudad"
+            required
+            defaultValue="Lima"
+            onChange={(e) => onCiudadChange?.(e.target.value)}
+            className={inputClass}
+          />
         </div>
         <div className="space-y-1.5 sm:col-span-2">
           <label htmlFor="referencia" className="text-sm font-medium">

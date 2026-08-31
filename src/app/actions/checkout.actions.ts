@@ -6,7 +6,7 @@ import { buscarVariante } from "@/constants/catalogo"
 import { crearPedidoInvitado } from "@/services/pedido.service"
 import { validarCupon, registrarUsoCupon } from "@/services/cupon.service"
 import { obtenerOfertaActivaPorProducto } from "@/services/oferta.service"
-import { calcularPrecioConDescuento } from "@/lib/precios"
+import { calcularPrecioConDescuento, calcularEnvioCentimos } from "@/lib/precios"
 
 // Validación "en vivo" de un cupón, llamada desde el checkout antes de enviar el pedido.
 // No confirma nada — solo informa si es válido y qué % da, para mostrarlo en la UI.
@@ -67,17 +67,19 @@ export async function checkoutAction(formData: FormData) {
 
   const precioUnitarioCentimos = encontrado.producto.precioDesde * 100
   const subtotalCentimos = precioUnitarioCentimos * parsed.data.cantidad
-  const { descuentoCentimos, porcentajeAplicado } = calcularPrecioConDescuento(
+  const { precioFinalCentimos, descuentoCentimos, porcentajeAplicado } = calcularPrecioConDescuento(
     subtotalCentimos,
     porcentajeOferta,
     porcentajeCupon
   )
   const cuponGano = porcentajeAplicado > 0 && porcentajeCupon >= porcentajeOferta && !!parsed.data.cuponCodigo
+  const envioCentimos = calcularEnvioCentimos(parsed.data.ciudad, precioFinalCentimos)
 
   let pedidoId: string
   try {
     const pedido = await crearPedidoInvitado(parsed.data, precioUnitarioCentimos, {
       descuentoCentimos,
+      envioCentimos,
       cuponCodigo: cuponGano ? parsed.data.cuponCodigo?.trim().toUpperCase() : undefined,
     })
     pedidoId = pedido.id
