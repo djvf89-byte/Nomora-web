@@ -1,6 +1,6 @@
 import { Resend } from "resend"
 
-export const EMAIL_FROM = process.env.RESEND_FROM_EMAIL ?? "pedidos@somosnomora.com"
+export const EMAIL_FROM = process.env.RESEND_FROM_EMAIL ?? "pedidos@mail.somosnomora.com"
 
 let cliente: Resend | null = null
 
