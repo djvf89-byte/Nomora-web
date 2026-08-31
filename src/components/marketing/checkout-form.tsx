@@ -8,7 +8,7 @@ import type { LineaCarrito } from "@/lib/carrito"
 
 const initialState = { error: undefined as string | undefined }
 
-const METODOS_PAGO = ["YAPE", "PLIN", "TRANSFERENCIA_BANCARIA", "TARJETA"] as const
+const METODOS_PAGO = ["YAPE", "TRANSFERENCIA_BANCARIA", "TARJETA"] as const
 
 const inputClass =
   "w-full rounded-[2px] border border-input bg-card px-3.5 py-2.5 text-sm outline-none transition focus:border-ring"

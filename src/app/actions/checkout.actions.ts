@@ -138,24 +138,24 @@ export async function checkoutAction(formData: FormData) {
     }
   }
 
-  // Tarjeta va al checkout hospedado de MercadoPago; el webhook confirma el pago solo
-  // (ver /api/mercadopago/webhook) y marca PAGADO — no pasa por verificación manual del admin.
+  // Yape, transferencia bancaria y tarjeta van todas al checkout hospedado de MercadoPago
+  // (ahí el cliente elige el método real: Yape, banca y agentes, o tarjeta). El webhook
+  // confirma el pago solo (ver /api/mercadopago/webhook) y marca PAGADO — sin verificación
+  // manual del admin ni comprobante que subir.
   let checkoutUrl: string | undefined
-  if (parsed.data.metodoPago === "TARJETA") {
-    const totalCentimos = precioFinalCentimos + envioCentimos
-    try {
-      const preferencia = await crearPreferenciaPago(
-        pedidoId,
-        `Pedido Nomora #${pedidoId.slice(-8)}`,
-        totalCentimos,
-        parsed.data.email
-      )
-      checkoutUrl = preferencia.sandbox_init_point ?? preferencia.init_point
-    } catch (err) {
-      // El pedido ya quedó como PENDIENTE — si MercadoPago falla, lo mandamos a la
-      // confirmación igual; el admin puede procesar el pago manualmente después.
-      console.error("Error creando preferencia de MercadoPago:", err)
-    }
+  const totalCentimos = precioFinalCentimos + envioCentimos
+  try {
+    const preferencia = await crearPreferenciaPago(
+      pedidoId,
+      `Pedido Nomora #${pedidoId.slice(-8)}`,
+      totalCentimos,
+      parsed.data.email
+    )
+    checkoutUrl = preferencia.sandbox_init_point ?? preferencia.init_point
+  } catch (err) {
+    // El pedido ya quedó como PENDIENTE — si MercadoPago falla, lo mandamos a la
+    // confirmación igual; el admin puede procesar el pago manualmente después.
+    console.error("Error creando preferencia de MercadoPago:", err)
   }
 
   // redirect() lanza internamente — nunca debe llamarse dentro de un try/catch.

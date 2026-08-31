@@ -15,7 +15,7 @@ export const checkoutSchema = z.object({
   provincia: z.string().min(2, "Selecciona tu provincia"),
   distrito: z.string().min(2, "Selecciona tu distrito"),
   referencia: z.string().max(200).optional(),
-  metodoPago: z.enum(["YAPE", "PLIN", "TRANSFERENCIA_BANCARIA", "TARJETA"]),
+  metodoPago: z.enum(["YAPE", "TRANSFERENCIA_BANCARIA", "TARJETA"]),
   items: z.preprocess((val) => {
     if (typeof val !== "string") return val
     try {
