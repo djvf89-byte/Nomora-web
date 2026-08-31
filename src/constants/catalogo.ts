@@ -129,10 +129,10 @@ export const CATALOGO: Producto[] = [
     spec: "140 x 70 cm · secado rápido",
     precioDesde: 70,
     variantes: [
-      { id: "toalla-mancora", diseno: "Máncora", imagen: "/productos/toallas/toalla-mancora.webp", stock: 0 },
-      { id: "toalla-gocta", diseno: "Gocta", imagen: "/productos/toallas/toalla-gocta.webp", stock: 10 },
-      { id: "toalla-lima", diseno: "Lima", imagen: "/productos/toallas/toalla-lima.webp", stock: 14 },
-      { id: "toalla-padel", diseno: "Padel", imagen: "/productos/toallas/toalla-padel.webp", stock: 6 },
+      { id: "toalla-mancora", diseno: "Máncora", imagen: "/productos/toallas/toalla-mancora.webp", stock: 1 },
+      { id: "toalla-gocta", diseno: "Gocta", imagen: "/productos/toallas/toalla-gocta.webp", stock: 2 },
+      { id: "toalla-lima", diseno: "Lima", imagen: "/productos/toallas/toalla-lima.webp", stock: 2 },
+      { id: "toalla-padel", diseno: "Padel", imagen: "/productos/toallas/toalla-padel.webp", stock: 3 },
       {
         id: "toalla-voley-playa",
         diseno: "Voley playa",
