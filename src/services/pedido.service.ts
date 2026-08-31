@@ -28,7 +28,8 @@ export async function crearPedidoInvitado(
         telefono: datos.telefono,
         direccion: datos.direccion,
         distrito: datos.distrito,
-        ciudad: datos.ciudad,
+        provincia: datos.provincia,
+        departamento: datos.departamento,
         referencia: datos.referencia || null,
       },
     })

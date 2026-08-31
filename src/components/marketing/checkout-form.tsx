@@ -1,8 +1,9 @@
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState } from "react"
 import { checkoutAction } from "@/app/actions/checkout.actions"
 import { useLocale } from "@/lib/i18n/locale-context"
+import { DEPARTAMENTOS, provinciasDeDepartamento, distritosDeProvincia } from "@/constants/ubigeo"
 
 const initialState = { error: undefined as string | undefined }
 
@@ -16,15 +17,24 @@ export function CheckoutForm({
   varianteId,
   cantidad,
   cuponCodigo,
-  onCiudadChange,
+  onProvinciaChange,
 }: {
   productoSlug: string
   varianteId: string
   cantidad: number
   cuponCodigo?: string
-  onCiudadChange?: (ciudad: string) => void
+  onProvinciaChange?: (provincia: string) => void
 }) {
   const { t } = useLocale()
+  const [departamento, setDepartamento] = useState("")
+  const [provincia, setProvincia] = useState("")
+  const [distrito, setDistrito] = useState("")
+
+  const departamentoId = DEPARTAMENTOS.find(([, nombre]) => nombre === departamento)?.[0]
+  const provinciasDisponibles = departamentoId ? provinciasDeDepartamento(departamentoId) : []
+  const provinciaId = provinciasDisponibles.find(([, nombre]) => nombre === provincia)?.[0]
+  const distritosDisponibles = provinciaId ? distritosDeProvincia(provinciaId) : []
+
   const [state, action, isPending] = useActionState(
     async (_prev: typeof initialState, formData: FormData) => {
       return (await checkoutAction(formData)) ?? initialState
@@ -74,23 +84,81 @@ export function CheckoutForm({
           <input id="direccion" name="direccion" required className={inputClass} />
         </div>
         <div className="space-y-1.5">
+          <label htmlFor="departamento" className="text-sm font-medium">
+            {t.checkout.departamento}
+          </label>
+          <select
+            id="departamento"
+            name="departamento"
+            required
+            value={departamento}
+            onChange={(e) => {
+              setDepartamento(e.target.value)
+              setProvincia("")
+              setDistrito("")
+              onProvinciaChange?.("")
+            }}
+            className={inputClass}
+          >
+            <option value="" disabled>
+              {t.checkout.selectPlaceholder}
+            </option>
+            {DEPARTAMENTOS.map(([id, nombre]) => (
+              <option key={id} value={nombre}>
+                {nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <label htmlFor="provincia" className="text-sm font-medium">
+            {t.checkout.provincia}
+          </label>
+          <select
+            id="provincia"
+            name="provincia"
+            required
+            disabled={!departamento}
+            value={provincia}
+            onChange={(e) => {
+              setProvincia(e.target.value)
+              setDistrito("")
+              onProvinciaChange?.(e.target.value)
+            }}
+            className={inputClass}
+          >
+            <option value="" disabled>
+              {t.checkout.selectPlaceholder}
+            </option>
+            {provinciasDisponibles.map(([id, nombre]) => (
+              <option key={id} value={nombre}>
+                {nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-1.5">
           <label htmlFor="distrito" className="text-sm font-medium">
             {t.checkout.district}
           </label>
-          <input id="distrito" name="distrito" required className={inputClass} />
-        </div>
-        <div className="space-y-1.5">
-          <label htmlFor="ciudad" className="text-sm font-medium">
-            {t.checkout.city}
-          </label>
-          <input
-            id="ciudad"
-            name="ciudad"
+          <select
+            id="distrito"
+            name="distrito"
             required
-            defaultValue="Lima"
-            onChange={(e) => onCiudadChange?.(e.target.value)}
+            disabled={!provincia}
+            value={distrito}
+            onChange={(e) => setDistrito(e.target.value)}
             className={inputClass}
-          />
+          >
+            <option value="" disabled>
+              {t.checkout.selectPlaceholder}
+            </option>
+            {distritosDisponibles.map(([id, nombre]) => (
+              <option key={id} value={nombre}>
+                {nombre}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="space-y-1.5 sm:col-span-2">
           <label htmlFor="referencia" className="text-sm font-medium">

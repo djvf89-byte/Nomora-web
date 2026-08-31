@@ -52,7 +52,7 @@ export default async function PedidoDetallePage({ params }: { params: Promise<{ 
             <p>{pedido.direccion.telefono}</p>
             <p>{pedido.direccion.direccion}</p>
             <p>
-              {pedido.direccion.distrito}, {pedido.direccion.ciudad}
+              {pedido.direccion.distrito}, {pedido.direccion.provincia}, {pedido.direccion.departamento}
             </p>
             {pedido.direccion.referencia && <p>Ref: {pedido.direccion.referencia}</p>}
           </div>

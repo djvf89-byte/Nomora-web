@@ -25,8 +25,9 @@ export async function checkoutAction(formData: FormData) {
     email: formData.get("email") as string,
     telefono: formData.get("telefono") as string,
     direccion: formData.get("direccion") as string,
+    departamento: formData.get("departamento") as string,
+    provincia: formData.get("provincia") as string,
     distrito: formData.get("distrito") as string,
-    ciudad: formData.get("ciudad") as string,
     referencia: (formData.get("referencia") as string) || undefined,
     metodoPago: formData.get("metodoPago") as string,
     productoSlug: formData.get("productoSlug") as string,
@@ -73,7 +74,7 @@ export async function checkoutAction(formData: FormData) {
     porcentajeCupon
   )
   const cuponGano = porcentajeAplicado > 0 && porcentajeCupon >= porcentajeOferta && !!parsed.data.cuponCodigo
-  const envioCentimos = calcularEnvioCentimos(parsed.data.ciudad, precioFinalCentimos)
+  const envioCentimos = calcularEnvioCentimos(parsed.data.provincia, precioFinalCentimos)
 
   let pedidoId: string
   try {

@@ -1,16 +1,19 @@
-// Envío dentro de Lima: gratis desde el umbral, S/13.50 por debajo de él.
-// La tarifa de envío a provincia todavía no está definida — ver docs/business-rules.md.
+// Envío dentro de Lima y Callao: gratis desde el umbral, S/13.50 por debajo de él.
+// La tarifa de envío a provincia (resto del país) todavía no está definida — ver docs/business-rules.md.
 export const UMBRAL_ENVIO_GRATIS_LIMA_CENTIMOS = 10000
 export const COSTO_ENVIO_LIMA_CENTIMOS = 1350
 
-export function esCiudadLima(ciudad: string) {
-  return ciudad.trim().toLowerCase().includes("lima")
+// Deliberadamente estricto: solo las provincias "Lima" (Lima Metropolitana) y "Callao",
+// no todo el departamento de Lima (que incluye provincias lejanas como Cañete o Huaral).
+export function esProvinciaLima(provincia: string) {
+  const valor = provincia.trim().toLowerCase()
+  return valor === "lima" || valor === "callao"
 }
 
 // Calcula el costo de envío sobre el monto ya con descuento aplicado.
-// Provincia devuelve 0 (sin cobrar) porque la tarifa aún no está definida.
-export function calcularEnvioCentimos(ciudad: string, totalConDescuentoCentimos: number) {
-  if (!esCiudadLima(ciudad)) return 0
+// Fuera de Lima/Callao devuelve 0 (sin cobrar) porque la tarifa aún no está definida.
+export function calcularEnvioCentimos(provincia: string, totalConDescuentoCentimos: number) {
+  if (!esProvinciaLima(provincia)) return 0
   return totalConDescuentoCentimos >= UMBRAL_ENVIO_GRATIS_LIMA_CENTIMOS ? 0 : COSTO_ENVIO_LIMA_CENTIMOS
 }
 

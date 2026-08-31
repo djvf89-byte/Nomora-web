@@ -9,7 +9,7 @@ import { validarCuponAction } from "@/app/actions/checkout.actions"
 import {
   calcularPrecioConDescuento,
   calcularEnvioCentimos,
-  esCiudadLima,
+  esProvinciaLima,
   UMBRAL_ENVIO_GRATIS_LIMA_CENTIMOS,
 } from "@/lib/precios"
 import { ProductoIcono } from "./producto-icono"
@@ -24,14 +24,14 @@ export function ResumenPedido({
   variante,
   cantidad,
   ofertaPorcentaje,
-  ciudad,
+  provincia,
   onCuponChange,
 }: {
   producto: Producto
   variante: Variante
   cantidad: number
   ofertaPorcentaje: number
-  ciudad: string
+  provincia: string
   onCuponChange: (cupon: CuponAplicado | null) => void
 }) {
   const { t, locale } = useLocale()
@@ -50,9 +50,9 @@ export function ResumenPedido({
     cupon?.porcentaje ?? 0
   )
   const cuponEsElAplicado = !!cupon && cupon.porcentaje >= ofertaPorcentaje
-  const esLima = esCiudadLima(ciudad)
+  const esLima = esProvinciaLima(provincia)
   const faltanteEnvioCentimos = UMBRAL_ENVIO_GRATIS_LIMA_CENTIMOS - precioFinalCentimos
-  const envioCentimos = calcularEnvioCentimos(ciudad, precioFinalCentimos)
+  const envioCentimos = calcularEnvioCentimos(provincia, precioFinalCentimos)
   const totalConEnvioCentimos = precioFinalCentimos + envioCentimos
 
   function aplicarCupon() {

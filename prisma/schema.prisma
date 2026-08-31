@@ -135,7 +135,8 @@ model Direccion {
   telefono      String
   direccion     String
   distrito      String
-  ciudad        String
+  provincia     String
+  departamento  String
   referencia    String?
   principal     Boolean  @default(false)
   creadoEn      DateTime @default(now())
