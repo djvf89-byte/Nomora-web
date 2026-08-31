@@ -8,6 +8,7 @@ import { validarCupon, registrarUsoCupon } from "@/services/cupon.service"
 import { obtenerOfertasActivasPorProducto } from "@/services/oferta.service"
 import { obtenerStockPorVariante } from "@/services/producto.service"
 import { crearPreferenciaPago } from "@/services/mercadopago.service"
+import { enviarEmailPedidoRecibido } from "@/services/email.service"
 import { calcularPrecioConDescuento, calcularEnvioCentimos } from "@/lib/precios"
 
 // Validación "en vivo" de un cupón, llamada desde el checkout antes de enviar el pedido.
@@ -137,6 +138,24 @@ export async function checkoutAction(formData: FormData) {
       // El pedido ya se creó — un fallo acá no debe tumbar la confirmación de compra.
     }
   }
+
+  await enviarEmailPedidoRecibido({
+    pedidoId,
+    nombreCliente: parsed.data.nombre,
+    emailCliente: parsed.data.email,
+    items: resueltos.map(({ item, encontrado }) => ({
+      nombre: encontrado!.producto.nombre,
+      detalle: [encontrado!.variante.talla, encontrado!.variante.color, encontrado!.variante.diseno]
+        .filter(Boolean)
+        .join(" · "),
+      cantidad: item.cantidad,
+      precioUnitarioCentimos: encontrado!.producto.precioDesde * 100,
+    })),
+    subtotalCentimos,
+    descuentoCentimos,
+    envioCentimos,
+    totalCentimos: precioFinalCentimos + envioCentimos,
+  })
 
   // Yape, transferencia bancaria y tarjeta van todas al checkout hospedado de MercadoPago
   // (ahí el cliente elige el método real: Yape, banca y agentes, o tarjeta). El webhook
