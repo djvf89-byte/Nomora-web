@@ -1,6 +1,7 @@
 "use client"
 
 import { useActionState, useState } from "react"
+import Link from "next/link"
 import { checkoutAction } from "@/app/actions/checkout.actions"
 import { useLocale } from "@/lib/i18n/locale-context"
 import { DEPARTAMENTOS, provinciasDeDepartamento, distritosDeProvincia } from "@/constants/ubigeo"
@@ -178,6 +179,21 @@ export function CheckoutForm({
           </label>
         ))}
       </fieldset>
+
+      <label className="flex cursor-pointer items-start gap-2.5 text-sm text-muted-foreground">
+        <input type="checkbox" name="aceptaTerminos" required className="mt-0.5" />
+        <span>
+          {t.checkout.acceptTermsPrefix}
+          <Link href="/terminos" target="_blank" className="text-foreground underline">
+            {t.checkout.termsLinkLabel}
+          </Link>
+          {t.checkout.acceptTermsMiddle}
+          <Link href="/privacidad" target="_blank" className="text-foreground underline">
+            {t.checkout.privacyLinkLabel}
+          </Link>
+          {t.checkout.acceptTermsSuffix}
+        </span>
+      </label>
 
       <button
         type="submit"

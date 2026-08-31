@@ -43,6 +43,7 @@ export async function checkoutAction(formData: FormData) {
     distrito: formData.get("distrito") as string,
     referencia: (formData.get("referencia") as string) || undefined,
     metodoPago: formData.get("metodoPago") as string,
+    aceptaTerminos: formData.get("aceptaTerminos") as string,
     items: formData.get("items") as string,
     cuponCodigo: (formData.get("cuponCodigo") as string) || undefined,
   }

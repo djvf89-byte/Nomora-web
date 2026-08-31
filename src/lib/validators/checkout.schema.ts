@@ -16,6 +16,7 @@ export const checkoutSchema = z.object({
   distrito: z.string().min(2, "Selecciona tu distrito"),
   referencia: z.string().max(200).optional(),
   metodoPago: z.enum(["YAPE", "TRANSFERENCIA_BANCARIA", "TARJETA"]),
+  aceptaTerminos: z.literal("on", { message: "Debes aceptar los términos y condiciones para continuar." }),
   items: z.preprocess((val) => {
     if (typeof val !== "string") return val
     try {
