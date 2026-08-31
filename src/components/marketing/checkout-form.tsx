@@ -4,6 +4,7 @@ import { useActionState, useState } from "react"
 import { checkoutAction } from "@/app/actions/checkout.actions"
 import { useLocale } from "@/lib/i18n/locale-context"
 import { DEPARTAMENTOS, provinciasDeDepartamento, distritosDeProvincia } from "@/constants/ubigeo"
+import type { LineaCarrito } from "@/lib/carrito"
 
 const initialState = { error: undefined as string | undefined }
 
@@ -13,19 +14,18 @@ const inputClass =
   "w-full rounded-[2px] border border-input bg-card px-3.5 py-2.5 text-sm outline-none transition focus:border-ring"
 
 export function CheckoutForm({
-  productoSlug,
-  varianteId,
-  cantidad,
+  lineas,
   cuponCodigo,
   onProvinciaChange,
 }: {
-  productoSlug: string
-  varianteId: string
-  cantidad: number
+  lineas: LineaCarrito[]
   cuponCodigo?: string
   onProvinciaChange?: (provincia: string) => void
 }) {
   const { t } = useLocale()
+  const itemsJson = JSON.stringify(
+    lineas.map((l) => ({ productoSlug: l.productoSlug, varianteId: l.varianteId, cantidad: l.cantidad }))
+  )
   const [departamento, setDepartamento] = useState("")
   const [provincia, setProvincia] = useState("")
   const [distrito, setDistrito] = useState("")
@@ -44,9 +44,7 @@ export function CheckoutForm({
 
   return (
     <form action={action} className="flex flex-col gap-4">
-      <input type="hidden" name="productoSlug" value={productoSlug} />
-      <input type="hidden" name="varianteId" value={varianteId} />
-      <input type="hidden" name="cantidad" value={cantidad} />
+      <input type="hidden" name="items" value={itemsJson} />
       {cuponCodigo && <input type="hidden" name="cuponCodigo" value={cuponCodigo} />}
 
       {state?.error && (

@@ -1,5 +1,11 @@
 import { z } from "zod"
 
+const itemCarritoSchema = z.object({
+  productoSlug: z.string().min(1),
+  varianteId: z.string().min(1),
+  cantidad: z.number().int().min(1).max(10),
+})
+
 export const checkoutSchema = z.object({
   nombre: z.string().min(2, "Ingresa tu nombre completo").max(120),
   email: z.string().email("Email inválido"),
@@ -10,9 +16,14 @@ export const checkoutSchema = z.object({
   distrito: z.string().min(2, "Selecciona tu distrito"),
   referencia: z.string().max(200).optional(),
   metodoPago: z.enum(["YAPE", "PLIN", "TRANSFERENCIA_BANCARIA", "TARJETA"]),
-  productoSlug: z.string(),
-  varianteId: z.string(),
-  cantidad: z.coerce.number().int().min(1).max(10),
+  items: z.preprocess((val) => {
+    if (typeof val !== "string") return val
+    try {
+      return JSON.parse(val)
+    } catch {
+      return val
+    }
+  }, z.array(itemCarritoSchema).min(1, "Tu carrito está vacío")),
   cuponCodigo: z.string().trim().max(30).optional(),
 })
 

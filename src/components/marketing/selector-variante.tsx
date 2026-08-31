@@ -1,10 +1,11 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
 import type { Producto, Variante } from "@/constants/catalogo"
 import { COLOR_TRANSLATIONS, DISENO_TRANSLATIONS } from "@/lib/i18n/translations"
 import { useLocale } from "@/lib/i18n/locale-context"
+import { agregarAlCarrito } from "@/lib/carrito"
 
 const MAX_POR_PEDIDO = 10
 
@@ -17,8 +18,8 @@ export function SelectorVariante({
   ofertaPorcentaje?: number
   onVarianteChange?: (variante: Variante | undefined) => void
 }) {
-  const router = useRouter()
   const { t, locale } = useLocale()
+  const [agregado, setAgregado] = useState(false)
 
   const tallas = useMemo(
     () => [...new Set(producto.variantes.map((v) => v.talla).filter(Boolean))] as string[],
@@ -192,13 +193,24 @@ export function SelectorVariante({
       <button
         type="button"
         disabled={!variante || !disponible}
-        onClick={() =>
-          router.push(`/checkout?producto=${producto.slug}&variante=${variante?.id}&cantidad=${cantidad}`)
-        }
+        onClick={() => {
+          if (!variante) return
+          agregarAlCarrito({ productoSlug: producto.slug, varianteId: variante.id, cantidad })
+          setAgregado(true)
+          setTimeout(() => setAgregado(false), 2500)
+        }}
         className="w-full rounded-[2px] bg-foreground px-6 py-3.5 text-sm font-semibold tracking-[0.08em] text-background uppercase transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
       >
-        {disponible ? t.product.buyNow : t.product.soldOut}
+        {disponible ? t.product.addToCart : t.product.soldOut}
       </button>
+      {agregado && (
+        <p className="text-center text-xs font-medium text-accent">
+          {t.product.addedToCart}{" "}
+          <Link href="/carrito" className="underline">
+            {t.product.viewCart}
+          </Link>
+        </p>
+      )}
       <p className="text-center text-xs text-muted-foreground">{t.product.noAccountNote}</p>
     </div>
   )

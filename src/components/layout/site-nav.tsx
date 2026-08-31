@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Sello } from "@/components/brand/sello"
 import { LanguageToggle } from "./language-toggle"
 import { useLocale } from "@/lib/i18n/locale-context"
-import { usePedidoPendiente } from "@/lib/pedido-pendiente"
+import { useLineasCarrito } from "@/lib/carrito"
 
 function renderMensaje(texto: string) {
   const partes = texto.split(/(\{b\}.*?\{\/b\})/g)
@@ -35,10 +35,9 @@ function TiraMensajes({ mensajes }: { mensajes: readonly string[] }) {
 
 export function SiteNav() {
   const { t } = useLocale()
-  const pedidoPendiente = usePedidoPendiente()
-  const cartHref = pedidoPendiente
-    ? `/checkout?producto=${pedidoPendiente.productoSlug}&variante=${pedidoPendiente.varianteId}&cantidad=${pedidoPendiente.cantidad}`
-    : "/catalogo"
+  const lineas = useLineasCarrito()
+  const cantidadCarrito = lineas.reduce((acc, l) => acc + l.cantidad, 0)
+  const cartHref = lineas.length > 0 ? "/carrito" : "/catalogo"
 
   return (
     <>
@@ -64,7 +63,7 @@ export function SiteNav() {
             <LanguageToggle />
             <Link
               href={cartHref}
-              aria-label={pedidoPendiente ? `${t.nav.cart} — ${t.nav.cartPending}` : t.nav.cart}
+              aria-label={cantidadCarrito > 0 ? `${t.nav.cart} — ${t.nav.cartPending}` : t.nav.cart}
               className="relative text-foreground"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -72,9 +71,9 @@ export function SiteNav() {
                 <circle cx="10" cy="21" r="1" />
                 <circle cx="18" cy="21" r="1" />
               </svg>
-              {pedidoPendiente && (
+              {cantidadCarrito > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">
-                  1
+                  {cantidadCarrito > 9 ? "9+" : cantidadCarrito}
                 </span>
               )}
             </Link>

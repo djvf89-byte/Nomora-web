@@ -5,7 +5,7 @@ import { checkoutSchema } from "@/lib/validators/checkout.schema"
 import { buscarVariante } from "@/constants/catalogo"
 import { crearPedidoInvitado } from "@/services/pedido.service"
 import { validarCupon, registrarUsoCupon } from "@/services/cupon.service"
-import { obtenerOfertaActivaPorProducto } from "@/services/oferta.service"
+import { obtenerOfertasActivasPorProducto } from "@/services/oferta.service"
 import { calcularPrecioConDescuento, calcularEnvioCentimos } from "@/lib/precios"
 
 // Validación "en vivo" de un cupón, llamada desde el checkout antes de enviar el pedido.
@@ -16,6 +16,16 @@ export async function validarCuponAction(codigo: string) {
     return await validarCupon(codigo)
   } catch {
     return { valido: false, porcentaje: 0, error: "No se pudo validar el cupón." }
+  }
+}
+
+// Mapa productoSlug -> % de oferta activa, para mostrar el descuento de cada línea
+// del carrito en el checkout antes de enviar el pedido.
+export async function obtenerOfertasActivasAction(): Promise<Record<string, number>> {
+  try {
+    return await obtenerOfertasActivasPorProducto()
+  } catch {
+    return {}
   }
 }
 
@@ -30,9 +40,7 @@ export async function checkoutAction(formData: FormData) {
     distrito: formData.get("distrito") as string,
     referencia: (formData.get("referencia") as string) || undefined,
     metodoPago: formData.get("metodoPago") as string,
-    productoSlug: formData.get("productoSlug") as string,
-    varianteId: formData.get("varianteId") as string,
-    cantidad: formData.get("cantidad") as string,
+    items: formData.get("items") as string,
     cuponCodigo: (formData.get("cuponCodigo") as string) || undefined,
   }
 
@@ -41,23 +49,29 @@ export async function checkoutAction(formData: FormData) {
     return { error: parsed.error.issues[0]?.message ?? "Revisa los datos ingresados." }
   }
 
-  const encontrado = buscarVariante(parsed.data.productoSlug, parsed.data.varianteId)
-  if (!encontrado || encontrado.variante.stock <= 0) {
-    return { error: "Esa variante ya no está disponible." }
-  }
-  if (parsed.data.cantidad > encontrado.variante.stock) {
-    return { error: `Solo quedan ${encontrado.variante.stock} unidades disponibles.` }
+  const resueltos = parsed.data.items.map((item) => ({
+    item,
+    encontrado: buscarVariante(item.productoSlug, item.varianteId),
+  }))
+
+  for (const { item, encontrado } of resueltos) {
+    if (!encontrado || encontrado.variante.stock <= 0) {
+      return { error: "Uno de los productos de tu carrito ya no está disponible." }
+    }
+    if (item.cantidad > encontrado.variante.stock) {
+      return { error: `Solo quedan ${encontrado.variante.stock} unidades de ${encontrado.producto.nombre}.` }
+    }
   }
 
-  // Oferta de temporada y cupón no se combinan — se aplica el mayor de los dos.
-  let porcentajeOferta = 0
-  let porcentajeCupon = 0
+  // Oferta de temporada y cupón no se combinan — por cada línea se aplica el mayor de los dos.
+  let ofertasPorProducto: Record<string, number> = {}
   try {
-    porcentajeOferta = await obtenerOfertaActivaPorProducto(parsed.data.productoSlug)
+    ofertasPorProducto = await obtenerOfertasActivasPorProducto()
   } catch {
-    // Sin conexión a BD: seguimos sin oferta aplicada en vez de bloquear la compra.
+    // Sin conexión a BD: seguimos sin ofertas aplicadas en vez de bloquear la compra.
   }
 
+  let porcentajeCupon = 0
   if (parsed.data.cuponCodigo) {
     const resultado = await validarCuponAction(parsed.data.cuponCodigo)
     if (!resultado.valido) {
@@ -66,19 +80,32 @@ export async function checkoutAction(formData: FormData) {
     porcentajeCupon = resultado.porcentaje
   }
 
-  const precioUnitarioCentimos = encontrado.producto.precioDesde * 100
-  const subtotalCentimos = precioUnitarioCentimos * parsed.data.cantidad
-  const { precioFinalCentimos, descuentoCentimos, porcentajeAplicado } = calcularPrecioConDescuento(
-    subtotalCentimos,
-    porcentajeOferta,
-    porcentajeCupon
-  )
-  const cuponGano = porcentajeAplicado > 0 && porcentajeCupon >= porcentajeOferta && !!parsed.data.cuponCodigo
+  let subtotalCentimos = 0
+  let descuentoCentimos = 0
+  let cuponContribuyo = false
+  const itemsPedido = resueltos.map(({ item, encontrado }) => {
+    const producto = encontrado!.producto
+    const precioUnitarioCentimos = producto.precioDesde * 100
+    const lineaSubtotalCentimos = precioUnitarioCentimos * item.cantidad
+    const porcentajeOferta = ofertasPorProducto[item.productoSlug] ?? 0
+    const linea = calcularPrecioConDescuento(lineaSubtotalCentimos, porcentajeOferta, porcentajeCupon)
+
+    subtotalCentimos += lineaSubtotalCentimos
+    descuentoCentimos += linea.descuentoCentimos
+    if (linea.porcentajeAplicado > 0 && porcentajeCupon > 0 && porcentajeCupon >= porcentajeOferta) {
+      cuponContribuyo = true
+    }
+
+    return { varianteId: item.varianteId, cantidad: item.cantidad, precioUnitarioCentimos }
+  })
+
+  const precioFinalCentimos = subtotalCentimos - descuentoCentimos
   const envioCentimos = calcularEnvioCentimos(parsed.data.provincia, precioFinalCentimos)
+  const cuponGano = cuponContribuyo && !!parsed.data.cuponCodigo
 
   let pedidoId: string
   try {
-    const pedido = await crearPedidoInvitado(parsed.data, precioUnitarioCentimos, {
+    const pedido = await crearPedidoInvitado(parsed.data, itemsPedido, {
       descuentoCentimos,
       envioCentimos,
       cuponCodigo: cuponGano ? parsed.data.cuponCodigo?.trim().toUpperCase() : undefined,

@@ -8,16 +8,22 @@ interface DescuentoResuelto {
   cuponCodigo?: string
 }
 
+interface ItemPedido {
+  varianteId: string
+  cantidad: number
+  precioUnitarioCentimos: number
+}
+
 // Checkout de invitado (sin cuenta) — ver docs/business-rules.md.
 // El stock se descuenta recién cuando el pedido pasa a PAGADO, no al crearse.
-// `descuento` ya viene resuelto (oferta de temporada vs. cupón, el mayor de los dos,
+// `descuento` ya viene resuelto (oferta de temporada vs. cupón, el mayor de los dos por línea,
 // nunca combinados — ver checkoutAction) para que este servicio no tenga que validar nada.
 export async function crearPedidoInvitado(
   datos: CheckoutInput,
-  precioUnitarioCentimos: number,
+  items: ItemPedido[],
   descuento: DescuentoResuelto = { descuentoCentimos: 0 }
 ) {
-  const subtotalCentimos = precioUnitarioCentimos * datos.cantidad
+  const subtotalCentimos = items.reduce((acc, item) => acc + item.precioUnitarioCentimos * item.cantidad, 0)
   const envioCentimos = descuento.envioCentimos ?? 0
   const totalCentimos = Math.max(subtotalCentimos - descuento.descuentoCentimos, 0) + envioCentimos
 
@@ -45,13 +51,11 @@ export async function crearPedidoInvitado(
         cuponCodigo: descuento.cuponCodigo ?? null,
         totalCentimos,
         items: {
-          create: [
-            {
-              varianteId: datos.varianteId,
-              cantidad: datos.cantidad,
-              precioUnitarioCentimos,
-            },
-          ],
+          create: items.map((item) => ({
+            varianteId: item.varianteId,
+            cantidad: item.cantidad,
+            precioUnitarioCentimos: item.precioUnitarioCentimos,
+          })),
         },
         pago: {
           create: {

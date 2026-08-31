@@ -3,13 +3,13 @@
 import { useEffect } from "react"
 import Link from "next/link"
 import { useLocale } from "@/lib/i18n/locale-context"
-import { limpiarPedidoPendiente } from "@/lib/pedido-pendiente"
+import { limpiarCarrito } from "@/lib/carrito"
 
 export function PedidoConfirmadoContenido({ email, id }: { email: string; id: string }) {
   const { t } = useLocale()
 
   useEffect(() => {
-    limpiarPedidoPendiente()
+    limpiarCarrito()
   }, [])
 
   return (
