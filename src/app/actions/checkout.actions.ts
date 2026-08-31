@@ -6,6 +6,7 @@ import { buscarVariante } from "@/constants/catalogo"
 import { crearPedidoInvitado } from "@/services/pedido.service"
 import { validarCupon, registrarUsoCupon } from "@/services/cupon.service"
 import { obtenerOfertasActivasPorProducto } from "@/services/oferta.service"
+import { obtenerStockPorVariante } from "@/services/producto.service"
 import { calcularPrecioConDescuento, calcularEnvioCentimos } from "@/lib/precios"
 
 // Validación "en vivo" de un cupón, llamada desde el checkout antes de enviar el pedido.
@@ -54,12 +55,25 @@ export async function checkoutAction(formData: FormData) {
     encontrado: buscarVariante(item.productoSlug, item.varianteId),
   }))
 
+  // El stock real vive en la BD (lo edita el admin) — el catálogo estático solo tiene contenido
+  // (nombre, precio, imágenes). Validar contra la BD evita vender una unidad que ya no existe.
+  let stockPorVariante: Record<string, number>
+  try {
+    stockPorVariante = await obtenerStockPorVariante()
+  } catch {
+    return { error: "No se pudo verificar el stock disponible. Intenta de nuevo en unos minutos." }
+  }
+
   for (const { item, encontrado } of resueltos) {
-    if (!encontrado || encontrado.variante.stock <= 0) {
+    if (!encontrado) {
       return { error: "Uno de los productos de tu carrito ya no está disponible." }
     }
-    if (item.cantidad > encontrado.variante.stock) {
-      return { error: `Solo quedan ${encontrado.variante.stock} unidades de ${encontrado.producto.nombre}.` }
+    const stockReal = stockPorVariante[item.varianteId] ?? encontrado.variante.stock
+    if (stockReal <= 0) {
+      return { error: "Uno de los productos de tu carrito ya no está disponible." }
+    }
+    if (item.cantidad > stockReal) {
+      return { error: `Solo quedan ${stockReal} unidades de ${encontrado.producto.nombre}.` }
     }
   }
 

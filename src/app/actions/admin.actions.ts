@@ -44,6 +44,9 @@ export async function cambiarEstadoPedidoAction(formData: FormData): Promise<Act
 
   revalidatePath("/admin/pedidos")
   revalidatePath(`/admin/pedidos/${parsed.data.pedidoId}`)
+  // PAGADO descuenta stock real — las páginas de producto son estáticas (SSG) y quedarían
+  // mostrando el stock congelado del último build si no se invalidan acá.
+  if (parsed.data.nuevoEstado === "PAGADO") revalidatePath("/catalogo/[slug]", "page")
   return { error: undefined, ok: true }
 }
 
@@ -59,6 +62,9 @@ export async function verificarPagoAction(formData: FormData): Promise<ActionRes
   }
 
   revalidatePath("/admin/pagos")
+  // Verificar el pago pasa el pedido a PAGADO y descuenta stock real — invalidar el catálogo
+  // estático (SSG) para que la tienda deje de mostrar el stock congelado del último build.
+  revalidatePath("/catalogo/[slug]", "page")
   return { error: undefined, ok: true }
 }
 
@@ -93,6 +99,7 @@ export async function actualizarStockAction(formData: FormData): Promise<ActionR
   }
 
   revalidatePath("/admin/catalogo")
+  revalidatePath("/catalogo/[slug]", "page")
   return { error: undefined, ok: true }
 }
 

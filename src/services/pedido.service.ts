@@ -124,20 +124,38 @@ const TRANSICIONES_VALIDAS: Record<EstadoPedido, EstadoPedido[]> = {
   CANCELADO: [],
 }
 
+// Único punto de transición de estado de un pedido — lo usan tanto "Marcar como Pagado" en el
+// detalle del pedido como la verificación de pago en /admin/pagos (ver pago.service.ts), para que
+// nunca queden desincronizados. Al pasar a PAGADO descuenta el stock real (ver business-rules.md);
+// V1 no reserva stock al crear el pedido, así que dos pedidos PENDIENTE pueden competir por la
+// última unidad — quien se confirme como PAGADO primero se la lleva, el stock puede quedar en 0.
 export async function actualizarEstadoPedido(id: string, nuevoEstado: EstadoPedido) {
-  const pedido = await prisma.pedido.findUniqueOrThrow({ where: { id } })
+  const resultado = await prisma.$transaction(async (tx) => {
+    const pedido = await tx.pedido.findUniqueOrThrow({ where: { id }, include: { items: true } })
 
-  if (!TRANSICIONES_VALIDAS[pedido.estado].includes(nuevoEstado)) {
-    throw new Error(`No se puede pasar de ${pedido.estado} a ${nuevoEstado}`)
-  }
+    if (!TRANSICIONES_VALIDAS[pedido.estado].includes(nuevoEstado)) {
+      throw new Error(`No se puede pasar de ${pedido.estado} a ${nuevoEstado}`)
+    }
 
-  const timestamps: Record<string, Date> = {}
-  if (nuevoEstado === "ENVIADO") timestamps.enviadoEn = new Date()
-  if (nuevoEstado === "ENTREGADO") timestamps.entregadoEn = new Date()
-  if (nuevoEstado === "CANCELADO") timestamps.canceladoEn = new Date()
+    if (nuevoEstado === "PAGADO") {
+      for (const item of pedido.items) {
+        await tx.variante.update({
+          where: { id: item.varianteId },
+          data: { stock: { decrement: item.cantidad } },
+        })
+      }
+    }
 
-  return prisma.pedido.update({
-    where: { id },
-    data: { estado: nuevoEstado, ...timestamps },
+    const timestamps: Record<string, Date> = {}
+    if (nuevoEstado === "ENVIADO") timestamps.enviadoEn = new Date()
+    if (nuevoEstado === "ENTREGADO") timestamps.entregadoEn = new Date()
+    if (nuevoEstado === "CANCELADO") timestamps.canceladoEn = new Date()
+
+    return tx.pedido.update({
+      where: { id },
+      data: { estado: nuevoEstado, ...timestamps },
+    })
   })
+
+  return resultado
 }

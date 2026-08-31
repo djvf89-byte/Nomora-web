@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { buscarProducto, CATALOGO } from "@/constants/catalogo"
 import { ProductoDetalle } from "@/components/marketing/producto-detalle"
 import { obtenerOfertaActivaPorProducto } from "@/services/oferta.service"
+import { obtenerStockPorVariante, aplicarStockReal } from "@/services/producto.service"
 import { dbSafe } from "@/lib/db-safe"
 import { PRODUCT_TRANSLATIONS } from "@/lib/i18n/translations"
 import { SITE_URL } from "@/lib/site"
@@ -47,10 +48,12 @@ export async function generateMetadata({
 
 export default async function ProductoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const producto = buscarProducto(slug)
-  if (!producto) notFound()
+  const productoBase = buscarProducto(slug)
+  if (!productoBase) notFound()
 
   const { data: ofertaPorcentaje } = await dbSafe(() => obtenerOfertaActivaPorProducto(slug), 0)
+  const { data: stockPorVariante } = await dbSafe(() => obtenerStockPorVariante(), {})
+  const producto = aplicarStockReal(productoBase, stockPorVariante)
   const texto = PRODUCT_TRANSLATIONS[slug].es
   const url = `${SITE_URL}/catalogo/${slug}`
 

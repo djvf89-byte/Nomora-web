@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import type { Producto } from "@/constants/catalogo"
 
 export async function listarProductosConVariantes() {
   return prisma.producto.findMany({
@@ -28,4 +29,25 @@ export async function actualizarPrecioProducto(productoId: string, precioCentimo
     where: { id: productoId },
     data: { precioCentimos },
   })
+}
+
+// La tienda mostraba el stock del catálogo estático (src/constants/catalogo.ts); el panel de
+// admin editaba Variante.stock en la BD, una tabla que la tienda nunca leía. Esto sincroniza:
+// la BD es la única fuente de verdad real, el catálogo estático queda solo como valor de respaldo
+// (por si la BD no responde) y como semilla inicial (ver prisma/seed.ts).
+export async function obtenerStockPorVariante(): Promise<Record<string, number>> {
+  const variantes = await prisma.variante.findMany({ select: { id: true, stock: true } })
+  const mapa: Record<string, number> = {}
+  for (const v of variantes) mapa[v.id] = v.stock
+  return mapa
+}
+
+export function aplicarStockReal(producto: Producto, stockPorVariante: Record<string, number>): Producto {
+  return {
+    ...producto,
+    variantes: producto.variantes.map((variante) => ({
+      ...variante,
+      stock: Math.max(0, stockPorVariante[variante.id] ?? variante.stock),
+    })),
+  }
 }
