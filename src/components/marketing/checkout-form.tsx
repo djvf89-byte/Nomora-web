@@ -1,10 +1,11 @@
 "use client"
 
-import { useActionState, useState } from "react"
+import { useActionState, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { checkoutAction } from "@/app/actions/checkout.actions"
 import { useLocale } from "@/lib/i18n/locale-context"
 import { DEPARTAMENTOS, provinciasDeDepartamento, distritosDeProvincia } from "@/constants/ubigeo"
+import { leerDatosCliente, guardarDatosCliente } from "@/lib/datos-cliente"
 import type { LineaCarrito } from "@/lib/carrito"
 
 const initialState = { error: undefined as string | undefined }
@@ -31,6 +32,44 @@ export function CheckoutForm({
   const [provincia, setProvincia] = useState("")
   const [distrito, setDistrito] = useState("")
 
+  const nombreRef = useRef<HTMLInputElement>(null)
+  const emailRef = useRef<HTMLInputElement>(null)
+  const telefonoRef = useRef<HTMLInputElement>(null)
+  const direccionRef = useRef<HTMLInputElement>(null)
+  const referenciaRef = useRef<HTMLInputElement>(null)
+
+  // Precarga los datos de contacto/envío guardados de una visita anterior — recién en el
+  // efecto (no en el render) para no desincronizar el HTML del servidor con el del cliente.
+  useEffect(() => {
+    const datos = leerDatosCliente()
+    if (datos.nombre && nombreRef.current) nombreRef.current.value = datos.nombre
+    if (datos.email && emailRef.current) emailRef.current.value = datos.email
+    if (datos.telefono && telefonoRef.current) telefonoRef.current.value = datos.telefono
+    if (datos.direccion && direccionRef.current) direccionRef.current.value = datos.direccion
+    if (datos.referencia && referenciaRef.current) referenciaRef.current.value = datos.referencia
+    if (datos.departamento) setDepartamento(datos.departamento)
+    if (datos.provincia) {
+      setProvincia(datos.provincia)
+      onProvinciaChange?.(datos.provincia)
+    }
+    if (datos.distrito) setDistrito(datos.distrito)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  function guardarDatosDelFormulario(formulario: HTMLFormElement) {
+    const fd = new FormData(formulario)
+    guardarDatosCliente({
+      nombre: (fd.get("nombre") as string) || undefined,
+      email: (fd.get("email") as string) || undefined,
+      telefono: (fd.get("telefono") as string) || undefined,
+      direccion: (fd.get("direccion") as string) || undefined,
+      departamento: (fd.get("departamento") as string) || undefined,
+      provincia: (fd.get("provincia") as string) || undefined,
+      distrito: (fd.get("distrito") as string) || undefined,
+      referencia: (fd.get("referencia") as string) || undefined,
+    })
+  }
+
   const departamentoId = DEPARTAMENTOS.find(([, nombre]) => nombre === departamento)?.[0]
   const provinciasDisponibles = departamentoId ? provinciasDeDepartamento(departamentoId) : []
   const provinciaId = provinciasDisponibles.find(([, nombre]) => nombre === provincia)?.[0]
@@ -44,7 +83,11 @@ export function CheckoutForm({
   )
 
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <form
+      action={action}
+      onChange={(e) => guardarDatosDelFormulario(e.currentTarget)}
+      className="flex flex-col gap-4"
+    >
       <input type="hidden" name="items" value={itemsJson} />
       {cuponCodigo && <input type="hidden" name="cuponCodigo" value={cuponCodigo} />}
 
@@ -59,19 +102,19 @@ export function CheckoutForm({
           <label htmlFor="nombre" className="text-sm font-medium">
             {t.checkout.fullName}
           </label>
-          <input id="nombre" name="nombre" required className={inputClass} />
+          <input id="nombre" name="nombre" required ref={nombreRef} className={inputClass} />
         </div>
         <div className="space-y-1.5">
           <label htmlFor="email" className="text-sm font-medium">
             {t.checkout.email}
           </label>
-          <input id="email" name="email" type="email" required className={inputClass} />
+          <input id="email" name="email" type="email" required ref={emailRef} className={inputClass} />
         </div>
         <div className="space-y-1.5">
           <label htmlFor="telefono" className="text-sm font-medium">
             {t.checkout.phone}
           </label>
-          <input id="telefono" name="telefono" type="tel" required className={inputClass} />
+          <input id="telefono" name="telefono" type="tel" required ref={telefonoRef} className={inputClass} />
         </div>
       </div>
 
@@ -80,7 +123,7 @@ export function CheckoutForm({
           <label htmlFor="direccion" className="text-sm font-medium">
             {t.checkout.address}
           </label>
-          <input id="direccion" name="direccion" required className={inputClass} />
+          <input id="direccion" name="direccion" required ref={direccionRef} className={inputClass} />
         </div>
         <div className="space-y-1.5">
           <label htmlFor="departamento" className="text-sm font-medium">
@@ -163,7 +206,7 @@ export function CheckoutForm({
           <label htmlFor="referencia" className="text-sm font-medium">
             {t.checkout.reference} <span className="text-muted-foreground">{t.checkout.optional}</span>
           </label>
-          <input id="referencia" name="referencia" className={inputClass} />
+          <input id="referencia" name="referencia" ref={referenciaRef} className={inputClass} />
         </div>
       </div>
 
