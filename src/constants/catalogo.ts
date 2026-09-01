@@ -146,7 +146,7 @@ export const CATALOGO: Producto[] = [
     nombre: "Medias de neopreno",
     descripcion: "Medias de neopreno para actividades acuáticas, protegen del frío y de superficies filosas.",
     spec: "Neopreno 3mm",
-    precioDesde: 20,
+    precioDesde: 60,
     variantes: [
       { id: "medias-s", talla: "S", imagen: "/productos/medias-neopreno.webp", stock: 0 },
       { id: "medias-m", talla: "M", imagen: "/productos/medias-neopreno.webp", stock: 0 },
