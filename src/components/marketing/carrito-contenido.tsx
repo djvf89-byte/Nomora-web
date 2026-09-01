@@ -1,17 +1,31 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useLocale } from "@/lib/i18n/locale-context"
 import { COLOR_TRANSLATIONS, DISENO_TRANSLATIONS, PRODUCT_TRANSLATIONS } from "@/lib/i18n/translations"
 import { useLineasCarrito, actualizarCantidadCarrito, quitarDelCarrito } from "@/lib/carrito"
+import { obtenerStockCarritoAction } from "@/app/actions/checkout.actions"
 import { ProductoIcono } from "./producto-icono"
 
 export function CarritoContenido() {
   const { t, locale } = useLocale()
   const router = useRouter()
-  const lineas = useLineasCarrito()
+  const [stockPorVariante, setStockPorVariante] = useState<Record<string, number>>()
+
+  useEffect(() => {
+    let activo = true
+    obtenerStockCarritoAction().then((mapa) => {
+      if (activo) setStockPorVariante(mapa)
+    })
+    return () => {
+      activo = false
+    }
+  }, [])
+
+  const lineas = useLineasCarrito(stockPorVariante)
   const subtotalCentimos = lineas.reduce((acc, l) => acc + l.producto.precioDesde * 100 * l.cantidad, 0)
 
   if (lineas.length === 0) {

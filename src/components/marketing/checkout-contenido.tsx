@@ -4,26 +4,31 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useLocale } from "@/lib/i18n/locale-context"
 import { useLineasCarrito } from "@/lib/carrito"
-import { obtenerOfertasActivasAction } from "@/app/actions/checkout.actions"
+import { obtenerOfertasActivasAction, obtenerStockCarritoAction } from "@/app/actions/checkout.actions"
 import { CheckoutForm } from "./checkout-form"
 import { ResumenPedido } from "./resumen-pedido"
 
 export function CheckoutContenido() {
   const { t } = useLocale()
-  const lineas = useLineasCarrito()
   const [cupon, setCupon] = useState<{ codigo: string; porcentaje: number } | null>(null)
   const [provincia, setProvincia] = useState("")
   const [ofertas, setOfertas] = useState<Record<string, number>>({})
+  const [stockPorVariante, setStockPorVariante] = useState<Record<string, number>>()
 
   useEffect(() => {
     let activo = true
     obtenerOfertasActivasAction().then((mapa) => {
       if (activo) setOfertas(mapa)
     })
+    obtenerStockCarritoAction().then((mapa) => {
+      if (activo) setStockPorVariante(mapa)
+    })
     return () => {
       activo = false
     }
   }, [])
+
+  const lineas = useLineasCarrito(stockPorVariante)
 
   if (lineas.length === 0) {
     return (

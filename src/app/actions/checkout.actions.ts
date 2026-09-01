@@ -32,6 +32,16 @@ export async function obtenerOfertasActivasAction(): Promise<Record<string, numb
   }
 }
 
+// Mapa varianteId -> stock real en BD, para resolver el carrito (/carrito y /checkout) contra el
+// inventario real en vez del catálogo estático (que el admin no edita — ver aplicarStockReal).
+export async function obtenerStockCarritoAction(): Promise<Record<string, number>> {
+  try {
+    return await obtenerStockPorVariante()
+  } catch {
+    return {}
+  }
+}
+
 export async function checkoutAction(formData: FormData) {
   const datos = {
     nombre: formData.get("nombre") as string,

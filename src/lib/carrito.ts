@@ -97,21 +97,31 @@ export function useCarrito(): ItemCarrito[] {
 
 // Resuelve el carrito contra el catálogo: descarta líneas cuyo producto/variante ya no
 // exista o esté agotado, y recorta la cantidad al stock disponible.
-export function resolverLineasCarrito(items: ItemCarrito[]): LineaCarrito[] {
+//
+// El stock del catálogo estático (catalogo.ts) no lo edita el admin — es solo contenido de
+// respaldo. Si se pasa `stockPorVariante` (stock real desde la BD, ver obtenerStockCarritoAction)
+// se usa ese valor en su lugar; si no, se cae al estático. Sin esto, un producto con stock real
+// en BD pero 0 en el catálogo estático desaparecía del carrito/checkout en silencio.
+export function resolverLineasCarrito(
+  items: ItemCarrito[],
+  stockPorVariante?: Record<string, number>
+): LineaCarrito[] {
   const lineas: LineaCarrito[] = []
   for (const item of items) {
     const encontrado = buscarVariante(item.productoSlug, item.varianteId)
-    if (!encontrado || encontrado.variante.stock <= 0) continue
+    if (!encontrado) continue
+    const stockReal = stockPorVariante?.[item.varianteId] ?? encontrado.variante.stock
+    if (stockReal <= 0) continue
     lineas.push({
       ...item,
-      cantidad: Math.min(item.cantidad, encontrado.variante.stock, MAX_POR_LINEA),
+      cantidad: Math.min(item.cantidad, stockReal, MAX_POR_LINEA),
       producto: encontrado.producto,
-      variante: encontrado.variante,
+      variante: { ...encontrado.variante, stock: stockReal },
     })
   }
   return lineas
 }
 
-export function useLineasCarrito(): LineaCarrito[] {
-  return resolverLineasCarrito(useCarrito())
+export function useLineasCarrito(stockPorVariante?: Record<string, number>): LineaCarrito[] {
+  return resolverLineasCarrito(useCarrito(), stockPorVariante)
 }
