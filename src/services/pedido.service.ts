@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import type { CheckoutInput } from "@/lib/validators/checkout.schema"
 import type { EstadoPedido } from "@prisma/client"
-import { enviarEmailPagoConfirmado } from "./email.service"
+import { enviarEmailPagoConfirmado, enviarEmailPedidoEnviado } from "./email.service"
 
 interface DescuentoResuelto {
   descuentoCentimos: number
@@ -160,6 +160,9 @@ export async function actualizarEstadoPedido(id: string, nuevoEstado: EstadoPedi
 
   if (nuevoEstado === "PAGADO") {
     await enviarEmailPagoConfirmado(resultado.id, resultado.nombreCliente, resultado.emailCliente, resultado.totalCentimos)
+  }
+  if (nuevoEstado === "ENVIADO") {
+    await enviarEmailPedidoEnviado(resultado.id, resultado.nombreCliente, resultado.emailCliente)
   }
 
   return resultado

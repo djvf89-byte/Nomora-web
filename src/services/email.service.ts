@@ -179,6 +179,34 @@ export async function enviarEmailPedidoRecibido(datos: PedidoEmailData) {
   }
 }
 
+// Se envía cuando el pedido pasa a ENVIADO (admin marca despacho).
+export async function enviarEmailPedidoEnviado(pedidoId: string, nombreCliente: string, emailCliente: string) {
+  const contenido = `
+    ${chipPedido(pedidoId)}
+    <p style="color:#4a4a4a;line-height:1.6;font-size:15px;margin:0;">
+      Hola ${nombreCliente}, tu pedido ya salió de nuestro almacén y está en camino.
+      Te avisaremos cuando llegue a tus manos.
+    </p>
+  `
+
+  const resend = obtenerClienteResend()
+  if (!resend) {
+    console.warn("RESEND_API_KEY no configurado — no se envió el email de pedido enviado.")
+    return
+  }
+
+  try {
+    await resend.emails.send({
+      from: EMAIL_FROM,
+      to: emailCliente,
+      subject: `¡Tu pedido está en camino! Pedido #${numeroPedido(pedidoId)}`,
+      html: plantillaBase("🚚", "¡Pedido en camino!", "Tu aventura está por llegar", contenido),
+    })
+  } catch (err) {
+    console.error("Error enviando email de pedido enviado:", err)
+  }
+}
+
 // Se envía cuando el pedido pasa a PAGADO (verificación manual o webhook de MercadoPago).
 export async function enviarEmailPagoConfirmado(pedidoId: string, nombreCliente: string, emailCliente: string, totalCentimos: number) {
   const contenido = `
