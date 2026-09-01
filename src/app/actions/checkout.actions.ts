@@ -179,7 +179,7 @@ export async function checkoutAction(formData: FormData) {
       totalCentimos,
       parsed.data.email
     )
-    checkoutUrl = preferencia.sandbox_init_point ?? preferencia.init_point
+    checkoutUrl = preferencia.init_point ?? preferencia.sandbox_init_point
   } catch (err) {
     // El pedido ya quedó como PENDIENTE — si MercadoPago falla, lo mandamos a la
     // confirmación igual; el admin puede procesar el pago manualmente después.
