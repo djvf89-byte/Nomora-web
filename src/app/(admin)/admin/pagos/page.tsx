@@ -9,6 +9,7 @@ const METODO_LABEL: Record<string, string> = {
   PLIN: "Plin",
   TRANSFERENCIA_BANCARIA: "Transferencia bancaria",
   TARJETA: "Tarjeta",
+  PAGO_EFECTIVO: "Pago Efectivo",
 }
 
 export default async function PagosPage() {
@@ -43,7 +44,8 @@ export default async function PagosPage() {
                 </Link>
                 <p className="mt-1 text-foreground">{pago.pedido.nombreCliente}</p>
                 <p className="text-muted-foreground">
-                  {METODO_LABEL[pago.tipo]} · {formatSoles(pago.montoCentimos)} · {formatFecha(pago.creadoEn)}
+                  {pago.tipo ? (METODO_LABEL[pago.tipo] ?? pago.tipo) : "Método aún no elegido"} ·{" "}
+                  {formatSoles(pago.montoCentimos)} · {formatFecha(pago.creadoEn)}
                 </p>
               </div>
               <AccionesPago pagoId={pago.id} />

@@ -36,6 +36,7 @@ enum TipoPago {
   PLIN
   TRANSFERENCIA_BANCARIA
   TARJETA
+  PAGO_EFECTIVO
 }
 
 enum EstadoPago {
@@ -272,7 +273,9 @@ model PedidoItem {
 model Pago {
   id                 String     @id @default(cuid())
   pedidoId           String     @unique
-  tipo               TipoPago
+  // Nulo hasta que el cliente completa el pago en el Brick/formulario de Checkout API —
+  // ya no se elige el método por adelantado en el formulario de datos del checkout.
+  tipo               TipoPago?
   estado             EstadoPago @default(PENDIENTE)
   montoCentimos      Int
   comprobanteUrl     String?

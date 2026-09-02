@@ -1,15 +1,16 @@
 "use server"
 
-import { redirect } from "next/navigation"
+import type { TipoPago } from "@prisma/client"
 import { checkoutSchema } from "@/lib/validators/checkout.schema"
 import { buscarVariante } from "@/constants/catalogo"
-import { crearPedidoInvitado } from "@/services/pedido.service"
+import { crearPedidoInvitado, actualizarEstadoPedido } from "@/services/pedido.service"
 import { validarCupon, registrarUsoCupon } from "@/services/cupon.service"
 import { obtenerOfertasActivasPorProducto } from "@/services/oferta.service"
 import { obtenerStockPorVariante } from "@/services/producto.service"
-import { crearPreferenciaPago } from "@/services/mercadopago.service"
+import { crearPagoCheckoutApi, crearPagoYape, type DatosPagoBrick } from "@/services/mercadopago.service"
 import { enviarEmailPedidoRecibido } from "@/services/email.service"
 import { calcularPrecioConDescuento, calcularEnvioCentimos } from "@/lib/precios"
+import { prisma } from "@/lib/prisma"
 
 // Validación "en vivo" de un cupón, llamada desde el checkout antes de enviar el pedido.
 // No confirma nada — solo informa si es válido y qué % da, para mostrarlo en la UI.
@@ -42,7 +43,28 @@ export async function obtenerStockCarritoAction(): Promise<Record<string, number
   }
 }
 
-export async function checkoutAction(formData: FormData) {
+// Usado mientras se muestra el StatusScreen de Pago Efectivo (pago pendiente) para saber
+// cuándo el webhook ya confirmó el pago y redirigir a la confirmación — el Brick no avisa
+// solo cuándo el estado final cambió, así que este polling liviano lo hacemos nosotros.
+export async function obtenerEstadoPedidoAction(pedidoId: string): Promise<string | null> {
+  try {
+    const pedido = await prisma.pedido.findUnique({ where: { id: pedidoId }, select: { estado: true } })
+    return pedido?.estado ?? null
+  } catch {
+    return null
+  }
+}
+
+interface ResultadoCrearPedido {
+  error?: string
+  pedidoId?: string
+  totalCentimos?: number
+}
+
+// Fase 1 del checkout: valida datos + stock, crea el Pedido (PENDIENTE, sin método de pago
+// todavía) y envía el email de "pedido recibido". No cobra nada — eso lo hace el Payment
+// Brick / formulario de Yape en la fase 2, ver procesarPagoBrickAction/procesarPagoYapeAction.
+export async function crearPedidoAction(formData: FormData): Promise<ResultadoCrearPedido> {
   const datos = {
     nombre: formData.get("nombre") as string,
     email: formData.get("email") as string,
@@ -52,7 +74,6 @@ export async function checkoutAction(formData: FormData) {
     provincia: formData.get("provincia") as string,
     distrito: formData.get("distrito") as string,
     referencia: (formData.get("referencia") as string) || undefined,
-    metodoPago: formData.get("metodoPago") as string,
     aceptaTerminos: formData.get("aceptaTerminos") as string,
     items: formData.get("items") as string,
     cuponCodigo: (formData.get("cuponCodigo") as string) || undefined,
@@ -176,27 +197,80 @@ export async function checkoutAction(formData: FormData) {
     totalCentimos: precioFinalCentimos + envioCentimos,
   })
 
-  // Yape, transferencia bancaria y tarjeta van todas al checkout hospedado de MercadoPago
-  // (ahí el cliente elige el método real: Yape, banca y agentes, o tarjeta). El webhook
-  // confirma el pago solo (ver /api/mercadopago/webhook) y marca PAGADO — sin verificación
-  // manual del admin ni comprobante que subir.
-  let checkoutUrl: string | undefined
-  const totalCentimos = precioFinalCentimos + envioCentimos
-  try {
-    const preferencia = await crearPreferenciaPago(
-      pedidoId,
-      `Pedido Nomora #${pedidoId.slice(-8)}`,
-      totalCentimos,
-      parsed.data.email
-    )
-    checkoutUrl = preferencia.init_point ?? preferencia.sandbox_init_point
-  } catch (err) {
-    // El pedido ya quedó como PENDIENTE — si MercadoPago falla, lo mandamos a la
-    // confirmación igual; el admin puede procesar el pago manualmente después.
-    console.error("Error creando preferencia de MercadoPago:", err)
+  return { pedidoId, totalCentimos: precioFinalCentimos + envioCentimos }
+}
+
+interface ResultadoPago {
+  error?: string
+  status?: string
+  paymentId?: string
+}
+
+// A partir del payment_method_id que realmente usó MercadoPago (nunca de lo que mande el
+// cliente) — Tarjeta cubre todas las marcas (visa, master, amex, etc.) que no sean Yape/PagoEfectivo.
+function mapearTipoPago(paymentMethodId: string | undefined): TipoPago {
+  if (paymentMethodId === "yape") return "YAPE"
+  if (paymentMethodId === "pagoefectivo_atm") return "PAGO_EFECTIVO"
+  return "TARJETA"
+}
+
+// Deja el Pago en BD reflejando lo que MercadoPago realmente procesó, y si quedó aprobado
+// transiciona el Pedido a PAGADO — de forma defensiva, ya que el webhook (que es la fuente
+// de verdad asíncrona) puede llegar antes o después y ya es idempotente por su cuenta.
+async function finalizarPago(pedidoId: string, resultado: { id?: number; status?: string; payment_method_id?: string }) {
+  const pedido = await prisma.pedido.findUnique({ where: { id: pedidoId }, include: { pago: true } })
+
+  if (pedido?.pago) {
+    await prisma.pago.update({
+      where: { id: pedido.pago.id },
+      data: {
+        tipo: mapearTipoPago(resultado.payment_method_id),
+        referenciaExterna: resultado.id ? String(resultado.id) : undefined,
+        estado: resultado.status === "approved" ? "VERIFICADO" : "PENDIENTE",
+      },
+    })
   }
 
-  // redirect() lanza internamente — nunca debe llamarse dentro de un try/catch.
-  if (checkoutUrl) redirect(checkoutUrl)
-  redirect(`/pedido-confirmado/${pedidoId}`)
+  if (resultado.status === "approved") {
+    try {
+      await actualizarEstadoPedido(pedidoId, "PAGADO")
+    } catch {
+      // Ya lo hizo el webhook (u otra llamada) primero — no es un error real.
+    }
+  }
+}
+
+// Fase 2 del checkout — Tarjeta o Pago Efectivo, vía el Payment Brick embebido. `datos` es el
+// formData que entrega el propio Brick (token/issuer/payment_method_id/payer ya tokenizados
+// en el navegador del cliente — nunca vemos número de tarjeta ni CVV acá).
+export async function procesarPagoBrickAction(pedidoId: string, datos: DatosPagoBrick): Promise<ResultadoPago> {
+  const pedido = await prisma.pedido.findUnique({ where: { id: pedidoId } })
+  if (!pedido) return { error: "Pedido no encontrado." }
+  if (pedido.estado !== "PENDIENTE") return { error: "Este pedido ya fue procesado." }
+
+  try {
+    const resultado = await crearPagoCheckoutApi(pedidoId, pedido.totalCentimos, datos)
+    await finalizarPago(pedidoId, resultado)
+    return { status: resultado.status, paymentId: resultado.id ? String(resultado.id) : undefined }
+  } catch (err) {
+    console.error("Error procesando pago (Checkout API):", err)
+    return { error: "No se pudo procesar el pago. Verifica los datos e intenta de nuevo." }
+  }
+}
+
+// Fase 2 del checkout — Yape, vía el formulario propio de teléfono + OTP (no lo cubre el
+// Payment Brick). `token` ya viene generado por el SDK de MercadoPago.js a partir del OTP.
+export async function procesarPagoYapeAction(pedidoId: string, token: string, email: string): Promise<ResultadoPago> {
+  const pedido = await prisma.pedido.findUnique({ where: { id: pedidoId } })
+  if (!pedido) return { error: "Pedido no encontrado." }
+  if (pedido.estado !== "PENDIENTE") return { error: "Este pedido ya fue procesado." }
+
+  try {
+    const resultado = await crearPagoYape(pedidoId, pedido.totalCentimos, token, email)
+    await finalizarPago(pedidoId, resultado)
+    return { status: resultado.status, paymentId: resultado.id ? String(resultado.id) : undefined }
+  } catch (err) {
+    console.error("Error procesando pago Yape:", err)
+    return { error: "No se pudo procesar el pago con Yape. Verifica el código e intenta de nuevo." }
+  }
 }

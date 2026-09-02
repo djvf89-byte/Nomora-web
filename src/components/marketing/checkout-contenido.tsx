@@ -7,6 +7,14 @@ import { useLineasCarrito } from "@/lib/carrito"
 import { obtenerOfertasActivasAction, obtenerStockCarritoAction } from "@/app/actions/checkout.actions"
 import { CheckoutForm } from "./checkout-form"
 import { ResumenPedido } from "./resumen-pedido"
+import { PagoBrick } from "./pago-brick"
+import { PagoYape } from "./pago-yape"
+
+interface PedidoCreado {
+  pedidoId: string
+  totalCentimos: number
+  email: string
+}
 
 export function CheckoutContenido() {
   const { t } = useLocale()
@@ -14,6 +22,8 @@ export function CheckoutContenido() {
   const [provincia, setProvincia] = useState("")
   const [ofertas, setOfertas] = useState<Record<string, number>>({})
   const [stockPorVariante, setStockPorVariante] = useState<Record<string, number>>()
+  const [pedidoCreado, setPedidoCreado] = useState<PedidoCreado | null>(null)
+  const [metodoPago, setMetodoPago] = useState<"tarjeta" | "yape">("tarjeta")
 
   useEffect(() => {
     let activo = true
@@ -54,9 +64,58 @@ export function CheckoutContenido() {
       <h1 className="mb-8 text-2xl font-black tracking-[-0.02em] text-foreground sm:text-3xl">{t.checkout.title}</h1>
 
       <div className="grid grid-cols-1 gap-10 sm:grid-cols-[1fr_320px]">
-        <CheckoutForm lineas={lineas} cuponCodigo={cupon?.codigo} onProvinciaChange={setProvincia} />
+        {pedidoCreado ? (
+          <div className="space-y-5">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setMetodoPago("tarjeta")}
+                className={`flex-1 rounded-[2px] border px-4 py-2.5 text-xs font-semibold tracking-[0.08em] uppercase transition-colors ${
+                  metodoPago === "tarjeta"
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-input text-muted-foreground hover:border-foreground"
+                }`}
+              >
+                {t.checkout.payWithCardOrTicket}
+              </button>
+              <button
+                type="button"
+                onClick={() => setMetodoPago("yape")}
+                className={`flex-1 rounded-[2px] border px-4 py-2.5 text-xs font-semibold tracking-[0.08em] uppercase transition-colors ${
+                  metodoPago === "yape"
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-input text-muted-foreground hover:border-foreground"
+                }`}
+              >
+                {t.checkout.payWithYape}
+              </button>
+            </div>
 
-        <ResumenPedido lineas={lineasConOferta} provincia={provincia} onCuponChange={setCupon} />
+            {metodoPago === "tarjeta" ? (
+              <PagoBrick
+                pedidoId={pedidoCreado.pedidoId}
+                totalCentimos={pedidoCreado.totalCentimos}
+                email={pedidoCreado.email}
+              />
+            ) : (
+              <PagoYape pedidoId={pedidoCreado.pedidoId} email={pedidoCreado.email} />
+            )}
+          </div>
+        ) : (
+          <CheckoutForm
+            lineas={lineas}
+            cuponCodigo={cupon?.codigo}
+            onProvinciaChange={setProvincia}
+            onPedidoCreado={setPedidoCreado}
+          />
+        )}
+
+        <ResumenPedido
+          lineas={lineasConOferta}
+          provincia={provincia}
+          onCuponChange={setCupon}
+          bloqueado={!!pedidoCreado}
+        />
       </div>
     </main>
   )

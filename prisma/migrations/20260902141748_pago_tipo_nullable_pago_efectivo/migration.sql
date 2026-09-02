@@ -1,0 +1,5 @@
+-- AlterEnum
+ALTER TYPE "TipoPago" ADD VALUE 'PAGO_EFECTIVO';
+
+-- AlterTable
+ALTER TABLE "pagos" ALTER COLUMN "tipo" DROP NOT NULL;

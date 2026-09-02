@@ -2,15 +2,13 @@
 
 import { useActionState, useEffect, useRef, useState } from "react"
 import Link from "next/link"
-import { checkoutAction } from "@/app/actions/checkout.actions"
+import { crearPedidoAction } from "@/app/actions/checkout.actions"
 import { useLocale } from "@/lib/i18n/locale-context"
 import { DEPARTAMENTOS, provinciasDeDepartamento, distritosDeProvincia } from "@/constants/ubigeo"
 import { leerDatosCliente, guardarDatosCliente } from "@/lib/datos-cliente"
 import type { LineaCarrito } from "@/lib/carrito"
 
 const initialState = { error: undefined as string | undefined }
-
-const METODOS_PAGO = ["YAPE", "TRANSFERENCIA_BANCARIA", "TARJETA"] as const
 
 const inputClass =
   "w-full rounded-[2px] border border-input bg-card px-3.5 py-2.5 text-sm outline-none transition focus:border-ring"
@@ -19,10 +17,14 @@ export function CheckoutForm({
   lineas,
   cuponCodigo,
   onProvinciaChange,
+  onPedidoCreado,
 }: {
   lineas: LineaCarrito[]
   cuponCodigo?: string
   onProvinciaChange?: (provincia: string) => void
+  // El método de pago ya no se elige acá — lo decide el cliente en el Payment Brick /
+  // formulario de Yape de la fase siguiente. Este formulario solo crea el Pedido.
+  onPedidoCreado: (datos: { pedidoId: string; totalCentimos: number; email: string }) => void
 }) {
   const { t } = useLocale()
   const itemsJson = JSON.stringify(
@@ -77,7 +79,16 @@ export function CheckoutForm({
 
   const [state, action, isPending] = useActionState(
     async (_prev: typeof initialState, formData: FormData) => {
-      return (await checkoutAction(formData)) ?? initialState
+      const resultado = await crearPedidoAction(formData)
+      if (!resultado.error && resultado.pedidoId && resultado.totalCentimos !== undefined) {
+        onPedidoCreado({
+          pedidoId: resultado.pedidoId,
+          totalCentimos: resultado.totalCentimos,
+          email: formData.get("email") as string,
+        })
+        return initialState
+      }
+      return { error: resultado.error ?? "No se pudo crear el pedido." }
     },
     initialState
   )
@@ -209,19 +220,6 @@ export function CheckoutForm({
           <input id="referencia" name="referencia" ref={referenciaRef} className={inputClass} />
         </div>
       </div>
-
-      <fieldset className="space-y-2">
-        <legend className="mb-1 text-sm font-medium">{t.checkout.paymentMethod}</legend>
-        {METODOS_PAGO.map((metodo, i) => (
-          <label
-            key={metodo}
-            className="flex cursor-pointer items-center gap-2.5 rounded-[2px] border border-input px-3.5 py-2.5 text-sm has-[:checked]:border-foreground"
-          >
-            <input type="radio" name="metodoPago" value={metodo} defaultChecked={i === 0} required />
-            {t.checkout.methods[metodo]}
-          </label>
-        ))}
-      </fieldset>
 
       <label className="flex cursor-pointer items-start gap-2.5 text-sm text-muted-foreground">
         <input type="checkbox" name="aceptaTerminos" required className="mt-0.5" />

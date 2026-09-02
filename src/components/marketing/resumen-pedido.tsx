@@ -27,10 +27,14 @@ export function ResumenPedido({
   lineas,
   provincia,
   onCuponChange,
+  bloqueado = false,
 }: {
   lineas: LineaConOferta[]
   provincia: string
   onCuponChange: (cupon: CuponAplicado | null) => void
+  // true una vez creado el Pedido — el total ya quedó fijado en el servidor, así que el
+  // cupón no puede seguir cambiando o el monto mostrado se desincroniza del que se cobra.
+  bloqueado?: boolean
 }) {
   const { t, locale } = useLocale()
   const [codigo, setCodigo] = useState("")
@@ -128,12 +132,13 @@ export function ResumenPedido({
             value={codigo}
             onChange={(e) => setCodigo(e.target.value)}
             placeholder={t.checkout.couponPlaceholder}
-            className="min-w-0 flex-1 rounded-[2px] border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring"
+            disabled={bloqueado}
+            className="min-w-0 flex-1 rounded-[2px] border border-input bg-card px-3 py-2 text-sm outline-none focus:border-ring disabled:opacity-50"
           />
           <button
             type="button"
             onClick={aplicarCupon}
-            disabled={isPending || !codigo.trim()}
+            disabled={isPending || !codigo.trim() || bloqueado}
             className="shrink-0 rounded-[2px] border border-foreground px-3 py-2 text-xs font-semibold tracking-[0.06em] uppercase disabled:opacity-40"
           >
             {isPending ? "..." : t.checkout.couponApply}

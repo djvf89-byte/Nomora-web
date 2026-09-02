@@ -62,7 +62,7 @@ export default async function PedidoDetallePage({ params }: { params: Promise<{ 
           <h2 className="mb-3 text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">Pago</h2>
           {pedido.pago ? (
             <div className="space-y-1 text-sm text-muted-foreground">
-              <p className="text-foreground">{pedido.pago.tipo}</p>
+              <p className="text-foreground">{pedido.pago.tipo ?? "Método aún no elegido"}</p>
               <p>Estado: {pedido.pago.estado}</p>
               <p>{formatSoles(pedido.pago.montoCentimos)}</p>
             </div>

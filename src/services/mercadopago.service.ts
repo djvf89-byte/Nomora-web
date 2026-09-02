@@ -1,41 +1,59 @@
-import { mpPreference } from "@/lib/mercadopago"
+import { mpPayment } from "@/lib/mercadopago"
 import { SITE_URL } from "@/lib/site"
 
-// Un solo ítem por preferencia con el total ya calculado (descuento + envío incluidos)
-// en vez de desglosar producto por producto — así el monto que cobra MercadoPago siempre
-// coincide exactamente con pedido.totalCentimos, sin riesgo de redondeo por línea.
-export async function crearPreferenciaPago(
-  pedidoId: string,
-  descripcion: string,
-  totalCentimos: number,
-  email: string
-) {
-  const esHttps = SITE_URL.startsWith("https")
+// Checkout API: el pago se cobra directo desde nuestro servidor (con datos tokenizados en
+// el navegador del cliente — nunca vemos número de tarjeta ni CVV) en vez de redirigir a la
+// página hospedada de MercadoPago (Checkout Pro, que se usaba antes). El webhook
+// (/api/mercadopago/webhook) sigue siendo agnóstico al método — no necesitó cambios.
 
-  const preferencia = await mpPreference.create({
+interface PayerCheckoutApi {
+  email: string
+  identification?: { type: string; number: string }
+  first_name?: string
+  last_name?: string
+}
+
+export interface DatosPagoBrick {
+  token?: string
+  issuer_id?: string | number
+  payment_method_id: string
+  installments?: number
+  payer: PayerCheckoutApi
+}
+
+// Tarjeta y Pago Efectivo — ambos los arma el Payment Brick de MercadoPago en el navegador,
+// nosotros solo reenviamos su formData al cobro real. El monto SIEMPRE es el que calculó
+// el servidor (pedido.totalCentimos) — nunca uno que venga del cliente.
+export async function crearPagoCheckoutApi(pedidoId: string, totalCentimos: number, datos: DatosPagoBrick) {
+  return mpPayment.create({
     body: {
-      items: [
-        {
-          id: pedidoId,
-          title: descripcion,
-          quantity: 1,
-          currency_id: "PEN",
-          unit_price: totalCentimos / 100,
-        },
-      ],
-      payer: { email },
+      transaction_amount: totalCentimos / 100,
+      token: datos.token,
+      issuer_id: datos.issuer_id ? Number(datos.issuer_id) : undefined,
+      payment_method_id: datos.payment_method_id,
+      installments: datos.installments ?? 1,
+      payer: datos.payer,
       external_reference: pedidoId,
-      back_urls: {
-        success: `${SITE_URL}/pedido-confirmado/${pedidoId}`,
-        pending: `${SITE_URL}/pedido-confirmado/${pedidoId}`,
-        failure: `${SITE_URL}/checkout`,
-      },
-      // auto_return exige back_urls https — en dev (localhost) se omite y el usuario
-      // vuelve manualmente con el botón de MercadoPago.
-      auto_return: esHttps ? "approved" : undefined,
+      description: `Pedido Nomora #${pedidoId.slice(-8)}`,
       notification_url: `${SITE_URL}/api/mercadopago/webhook`,
     },
+    requestOptions: { idempotencyKey: pedidoId },
   })
+}
 
-  return preferencia
+// Yape no lo cubre el Payment Brick — es un formulario propio (teléfono + OTP de 6 dígitos)
+// que genera un token vía el SDK de MercadoPago.js, y ese token se cobra igual que una tarjeta.
+export async function crearPagoYape(pedidoId: string, totalCentimos: number, token: string, email: string) {
+  return mpPayment.create({
+    body: {
+      transaction_amount: totalCentimos / 100,
+      token,
+      payment_method_id: "yape",
+      payer: { email },
+      external_reference: pedidoId,
+      description: `Pedido Nomora #${pedidoId.slice(-8)}`,
+      notification_url: `${SITE_URL}/api/mercadopago/webhook`,
+    },
+    requestOptions: { idempotencyKey: `${pedidoId}-yape` },
+  })
 }

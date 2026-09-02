@@ -58,9 +58,10 @@ export async function crearPedidoInvitado(
             precioUnitarioCentimos: item.precioUnitarioCentimos,
           })),
         },
+        // tipo queda null hasta que el cliente complete el pago en el Brick/formulario de
+        // Checkout API — ya no se elige el método por adelantado en el formulario de datos.
         pago: {
           create: {
-            tipo: datos.metodoPago,
             montoCentimos: totalCentimos,
           },
         },
