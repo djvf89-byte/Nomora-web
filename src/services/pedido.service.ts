@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import type { CheckoutInput } from "@/lib/validators/checkout.schema"
 import type { EstadoPedido } from "@prisma/client"
+import { buscarVariante } from "@/constants/catalogo"
 import { enviarEmailPagoConfirmado, enviarEmailPedidoEnviado } from "./email.service"
 
 interface DescuentoResuelto {
@@ -133,7 +134,10 @@ const TRANSICIONES_VALIDAS: Record<EstadoPedido, EstadoPedido[]> = {
 // última unidad — quien se confirme como PAGADO primero se la lleva, el stock puede quedar en 0.
 export async function actualizarEstadoPedido(id: string, nuevoEstado: EstadoPedido) {
   const resultado = await prisma.$transaction(async (tx) => {
-    const pedido = await tx.pedido.findUniqueOrThrow({ where: { id }, include: { items: true } })
+    const pedido = await tx.pedido.findUniqueOrThrow({
+      where: { id },
+      include: { items: { include: { variante: { select: { productoId: true } } } }, direccion: true },
+    })
 
     if (!TRANSICIONES_VALIDAS[pedido.estado].includes(nuevoEstado)) {
       throw new Error(`No se puede pasar de ${pedido.estado} a ${nuevoEstado}`)
@@ -153,14 +157,50 @@ export async function actualizarEstadoPedido(id: string, nuevoEstado: EstadoPedi
     if (nuevoEstado === "ENTREGADO") timestamps.entregadoEn = new Date()
     if (nuevoEstado === "CANCELADO") timestamps.canceladoEn = new Date()
 
-    return tx.pedido.update({
+    const actualizado = await tx.pedido.update({
       where: { id },
       data: { estado: nuevoEstado, ...timestamps },
     })
+
+    // items/direccion no cambian en esta transacción — se reusan del fetch de arriba en vez
+    // de volver a consultarlos, pero el resto de campos (estado, timestamps) sí vienen del
+    // update para que el resultado refleje el estado real después de la transición.
+    return { ...actualizado, items: pedido.items, direccion: pedido.direccion }
   })
 
+  // El correo al cliente solo se manda cuando el pago ya se confirmó (nunca al crear el
+  // pedido) o cuando se despacha — ver docs/business-rules.md.
   if (nuevoEstado === "PAGADO") {
-    await enviarEmailPagoConfirmado(resultado.id, resultado.nombreCliente, resultado.emailCliente, resultado.totalCentimos)
+    await enviarEmailPagoConfirmado({
+      pedidoId: resultado.id,
+      nombreCliente: resultado.nombreCliente,
+      emailCliente: resultado.emailCliente,
+      items: resultado.items.map((item) => {
+        const encontrado = buscarVariante(item.variante.productoId, item.varianteId)
+        return {
+          nombre: encontrado?.producto.nombre ?? "Producto",
+          detalle: encontrado
+            ? [encontrado.variante.talla, encontrado.variante.color, encontrado.variante.diseno]
+                .filter(Boolean)
+                .join(" · ")
+            : undefined,
+          cantidad: item.cantidad,
+          precioUnitarioCentimos: item.precioUnitarioCentimos,
+          imagen: encontrado?.variante.imagen,
+        }
+      }),
+      direccion: {
+        direccion: resultado.direccion.direccion,
+        distrito: resultado.direccion.distrito,
+        provincia: resultado.direccion.provincia,
+        departamento: resultado.direccion.departamento,
+        referencia: resultado.direccion.referencia ?? undefined,
+      },
+      subtotalCentimos: resultado.subtotalCentimos,
+      descuentoCentimos: resultado.descuentoCentimos,
+      envioCentimos: resultado.envioCentimos,
+      totalCentimos: resultado.totalCentimos,
+    })
   }
   if (nuevoEstado === "ENVIADO") {
     await enviarEmailPedidoEnviado(resultado.id, resultado.nombreCliente, resultado.emailCliente)

@@ -8,7 +8,6 @@ import { validarCupon, registrarUsoCupon } from "@/services/cupon.service"
 import { obtenerOfertasActivasPorProducto } from "@/services/oferta.service"
 import { obtenerStockPorVariante } from "@/services/producto.service"
 import { crearPagoCheckoutApi, crearPagoYape, type DatosPagoBrick } from "@/services/mercadopago.service"
-import { enviarEmailPedidoRecibido } from "@/services/email.service"
 import { calcularPrecioConDescuento, calcularEnvioCentimos } from "@/lib/precios"
 import { prisma } from "@/lib/prisma"
 
@@ -171,32 +170,8 @@ export async function crearPedidoAction(formData: FormData): Promise<ResultadoCr
     }
   }
 
-  await enviarEmailPedidoRecibido({
-    pedidoId,
-    nombreCliente: parsed.data.nombre,
-    emailCliente: parsed.data.email,
-    items: resueltos.map(({ item, encontrado }) => ({
-      nombre: encontrado!.producto.nombre,
-      detalle: [encontrado!.variante.talla, encontrado!.variante.color, encontrado!.variante.diseno]
-        .filter(Boolean)
-        .join(" · "),
-      cantidad: item.cantidad,
-      precioUnitarioCentimos: encontrado!.producto.precioDesde * 100,
-      imagen: encontrado!.variante.imagen,
-    })),
-    direccion: {
-      direccion: parsed.data.direccion,
-      distrito: parsed.data.distrito,
-      provincia: parsed.data.provincia,
-      departamento: parsed.data.departamento,
-      referencia: parsed.data.referencia,
-    },
-    subtotalCentimos,
-    descuentoCentimos,
-    envioCentimos,
-    totalCentimos: precioFinalCentimos + envioCentimos,
-  })
-
+  // No se manda correo acá — recién cuando el pago se confirma (actualizarEstadoPedido,
+  // en pedido.service.ts) o cuando se despacha el pedido.
   return { pedidoId, totalCentimos: precioFinalCentimos + envioCentimos }
 }
 

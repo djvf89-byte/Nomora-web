@@ -143,42 +143,6 @@ function bloqueDireccion(direccion: DireccionEmail) {
   `
 }
 
-// Se envía apenas se crea el pedido (estado PENDIENTE) — antes de que se confirme el pago.
-export async function enviarEmailPedidoRecibido(datos: PedidoEmailData) {
-  const contenido = `
-    ${chipPedido(datos.pedidoId)}
-    <p style="color:#4a4a4a;line-height:1.6;font-size:15px;margin:0 0 20px;">
-      Hola ${datos.nombreCliente}, recibimos tu pedido. Te escribimos de nuevo apenas confirmemos tu pago.
-    </p>
-    ${tablaItems(datos.items)}
-    <table role="presentation" width="100%" style="border-collapse:collapse;margin-top:6px;">
-      ${filaTotal("Subtotal", formatSoles(datos.subtotalCentimos))}
-      ${datos.descuentoCentimos > 0 ? filaTotal("Descuento", `−${formatSoles(datos.descuentoCentimos)}`) : ""}
-      ${filaTotal("Envío", datos.envioCentimos > 0 ? formatSoles(datos.envioCentimos) : "Gratis")}
-      ${filaTotal("Total", formatSoles(datos.totalCentimos), true)}
-    </table>
-    ${bloqueDireccion(datos.direccion)}
-  `
-
-  const resend = obtenerClienteResend()
-  if (!resend) {
-    console.warn("RESEND_API_KEY no configurado — no se envió el email de pedido recibido.")
-    return
-  }
-
-  try {
-    await resend.emails.send({
-      from: EMAIL_FROM,
-      to: datos.emailCliente,
-      subject: `Recibimos tu pedido #${numeroPedido(datos.pedidoId)}`,
-      html: plantillaBase("🎒", "¡Pedido recibido!", "Ya lo estamos procesando", contenido),
-    })
-  } catch (err) {
-    // Un fallo de email nunca debe tumbar el checkout.
-    console.error("Error enviando email de pedido recibido:", err)
-  }
-}
-
 // Se envía cuando el pedido pasa a ENVIADO (admin marca despacho).
 export async function enviarEmailPedidoEnviado(pedidoId: string, nombreCliente: string, emailCliente: string) {
   const contenido = `
@@ -208,13 +172,21 @@ export async function enviarEmailPedidoEnviado(pedidoId: string, nombreCliente: 
 }
 
 // Se envía cuando el pedido pasa a PAGADO (verificación manual o webhook de MercadoPago).
-export async function enviarEmailPagoConfirmado(pedidoId: string, nombreCliente: string, emailCliente: string, totalCentimos: number) {
+export async function enviarEmailPagoConfirmado(datos: PedidoEmailData) {
   const contenido = `
-    ${chipPedido(pedidoId)}
-    <p style="color:#4a4a4a;line-height:1.6;font-size:15px;margin:0;">
-      Hola ${nombreCliente}, confirmamos tu pago por <b style="color:${NEGRO};">${formatSoles(totalCentimos)}</b>.
-      Ya estamos preparando tu envío — te avisaremos cuando esté en camino.
+    ${chipPedido(datos.pedidoId)}
+    <p style="color:#4a4a4a;line-height:1.6;font-size:15px;margin:0 0 20px;">
+      Hola ${datos.nombreCliente}, confirmamos tu pago. Ya estamos preparando tu envío —
+      te avisaremos cuando esté en camino.
     </p>
+    ${tablaItems(datos.items)}
+    <table role="presentation" width="100%" style="border-collapse:collapse;margin-top:6px;">
+      ${filaTotal("Subtotal", formatSoles(datos.subtotalCentimos))}
+      ${datos.descuentoCentimos > 0 ? filaTotal("Descuento", `−${formatSoles(datos.descuentoCentimos)}`) : ""}
+      ${filaTotal("Envío", datos.envioCentimos > 0 ? formatSoles(datos.envioCentimos) : "Gratis")}
+      ${filaTotal("Total", formatSoles(datos.totalCentimos), true)}
+    </table>
+    ${bloqueDireccion(datos.direccion)}
   `
 
   const resend = obtenerClienteResend()
@@ -226,8 +198,8 @@ export async function enviarEmailPagoConfirmado(pedidoId: string, nombreCliente:
   try {
     await resend.emails.send({
       from: EMAIL_FROM,
-      to: emailCliente,
-      subject: `¡Tu pago fue confirmado! Pedido #${numeroPedido(pedidoId)}`,
+      to: datos.emailCliente,
+      subject: `¡Tu pago fue confirmado! Pedido #${numeroPedido(datos.pedidoId)}`,
       html: plantillaBase("✅", "¡Pago confirmado!", "Tu aventura está en camino", contenido),
     })
   } catch (err) {
