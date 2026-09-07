@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { Smartphone } from "lucide-react"
 import { useLocale } from "@/lib/i18n/locale-context"
 import { useLineasCarrito } from "@/lib/carrito"
 import { obtenerOfertasActivasAction, obtenerStockCarritoAction } from "@/app/actions/checkout.actions"
@@ -65,28 +66,30 @@ export function CheckoutContenido() {
 
       <div className="grid grid-cols-1 gap-10 sm:grid-cols-[1fr_320px]">
         {pedidoCreado ? (
-          <div className="overflow-hidden rounded-[2px] border border-border">
+          <div className="overflow-hidden rounded-[2px] border border-border bg-white">
             <button
               type="button"
               onClick={() => setMetodoPago(metodoPago === "yape" ? "tarjeta" : "yape")}
-              className="flex w-full items-center gap-3 border-b border-border bg-card px-4 py-3.5 text-left transition-colors hover:bg-muted"
+              className="flex w-full items-center gap-3 border-b border-border bg-white px-4 py-3.5 text-left transition-colors hover:bg-black/[0.02]"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-bold text-foreground">
-                Y
+              <span
+                aria-hidden
+                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] border-2 ${
+                  metodoPago === "yape" ? "border-foreground bg-foreground" : "border-input"
+                }`}
+              >
+                {metodoPago === "yape" && <span className="h-1.5 w-1.5 bg-white" />}
+              </span>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[4px] border border-border bg-white">
+                <Smartphone className="h-4 w-4 text-foreground" strokeWidth={1.75} />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-medium text-foreground">{t.checkout.payWithYape}</span>
                 <span className="block text-xs text-muted-foreground">{t.checkout.payWithYapeSubtitle}</span>
               </span>
-              <span
-                aria-hidden
-                className={`h-4 w-4 shrink-0 rounded-full border-2 ${
-                  metodoPago === "yape" ? "border-foreground bg-foreground" : "border-input"
-                }`}
-              />
             </button>
 
-            <div className="bg-card">
+            <div className="bg-white">
               {metodoPago === "yape" ? (
                 <div className="p-4">
                   <PagoYape pedidoId={pedidoCreado.pedidoId} email={pedidoCreado.email} />
