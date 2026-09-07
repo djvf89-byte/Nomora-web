@@ -1,7 +1,9 @@
 "use client"
 
-import { useSyncExternalStore } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
+import { usePathname } from "next/navigation"
 import { buscarVariante, type Producto, type Variante } from "@/constants/catalogo"
+import { obtenerStockCarritoAction } from "@/app/actions/checkout.actions"
 
 const STORAGE_KEY = "nomora-carrito"
 const EVENT_NAME = "nomora-carrito-change"
@@ -124,4 +126,26 @@ export function resolverLineasCarrito(
 
 export function useLineasCarrito(stockPorVariante?: Record<string, number>): LineaCarrito[] {
   return resolverLineasCarrito(useCarrito(), stockPorVariante)
+}
+
+// Igual que useLineasCarrito, pero trae el stock real y lo vuelve a pedir en cada
+// navegación (no solo al montar) — para componentes de layout persistentes (badge del
+// carrito, carrito flotante) que si no, se quedan con una foto vieja del stock: el usuario
+// compra la última unidad en /checkout, pero el ícono en la barra —que sigue montado desde
+// antes— nunca se entera y sigue mostrando el ítem como disponible.
+export function useLineasCarritoConStockActual(): LineaCarrito[] {
+  const pathname = usePathname()
+  const [stockPorVariante, setStockPorVariante] = useState<Record<string, number>>()
+
+  useEffect(() => {
+    let activo = true
+    obtenerStockCarritoAction().then((mapa) => {
+      if (activo) setStockPorVariante(mapa)
+    })
+    return () => {
+      activo = false
+    }
+  }, [pathname])
+
+  return useLineasCarrito(stockPorVariante)
 }

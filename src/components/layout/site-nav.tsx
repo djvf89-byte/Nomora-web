@@ -1,12 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Sello } from "@/components/brand/sello"
 import { LanguageToggle } from "./language-toggle"
 import { useLocale } from "@/lib/i18n/locale-context"
-import { useLineasCarrito } from "@/lib/carrito"
-import { obtenerStockCarritoAction } from "@/app/actions/checkout.actions"
+import { useLineasCarritoConStockActual } from "@/lib/carrito"
 
 function renderMensaje(texto: string) {
   const partes = texto.split(/(\{b\}.*?\{\/b\})/g)
@@ -37,19 +35,7 @@ function TiraMensajes({ mensajes }: { mensajes: readonly string[] }) {
 
 export function SiteNav() {
   const { t } = useLocale()
-  const [stockPorVariante, setStockPorVariante] = useState<Record<string, number>>()
-
-  useEffect(() => {
-    let activo = true
-    obtenerStockCarritoAction().then((mapa) => {
-      if (activo) setStockPorVariante(mapa)
-    })
-    return () => {
-      activo = false
-    }
-  }, [])
-
-  const lineas = useLineasCarrito(stockPorVariante)
+  const lineas = useLineasCarritoConStockActual()
   const cantidadCarrito = lineas.reduce((acc, l) => acc + l.cantidad, 0)
   // Siempre lleva a /carrito — nunca a /catalogo — para que el acceso al carrito no
   // dependa de si ya cargó el stock real o de si el conteo aparenta estar en 0.
