@@ -16,6 +16,41 @@ interface ItemPedido {
   precioUnitarioCentimos: number
 }
 
+// Resuelve nombre/detalle/imagen de cada línea contra el catálogo estático (fuente de
+// contenido — ver aplicarStockReal) para los correos de pago confirmado y pedido enviado.
+function resolverItemsEmail(
+  items: { varianteId: string; cantidad: number; precioUnitarioCentimos: number; variante: { productoId: string } }[]
+) {
+  return items.map((item) => {
+    const encontrado = buscarVariante(item.variante.productoId, item.varianteId)
+    return {
+      nombre: encontrado?.producto.nombre ?? "Producto",
+      detalle: encontrado
+        ? [encontrado.variante.talla, encontrado.variante.color, encontrado.variante.diseno].filter(Boolean).join(" · ")
+        : undefined,
+      cantidad: item.cantidad,
+      precioUnitarioCentimos: item.precioUnitarioCentimos,
+      imagen: encontrado?.variante.imagen,
+    }
+  })
+}
+
+function resolverDireccionEmail(direccion: {
+  direccion: string
+  distrito: string
+  provincia: string
+  departamento: string
+  referencia: string | null
+}) {
+  return {
+    direccion: direccion.direccion,
+    distrito: direccion.distrito,
+    provincia: direccion.provincia,
+    departamento: direccion.departamento,
+    referencia: direccion.referencia ?? undefined,
+  }
+}
+
 // Checkout de invitado (sin cuenta) — ver docs/business-rules.md.
 // El stock se descuenta recién cuando el pedido pasa a PAGADO, no al crearse.
 // `descuento` ya viene resuelto (oferta de temporada vs. cupón, el mayor de los dos por línea,
@@ -175,27 +210,8 @@ export async function actualizarEstadoPedido(id: string, nuevoEstado: EstadoPedi
       pedidoId: resultado.id,
       nombreCliente: resultado.nombreCliente,
       emailCliente: resultado.emailCliente,
-      items: resultado.items.map((item) => {
-        const encontrado = buscarVariante(item.variante.productoId, item.varianteId)
-        return {
-          nombre: encontrado?.producto.nombre ?? "Producto",
-          detalle: encontrado
-            ? [encontrado.variante.talla, encontrado.variante.color, encontrado.variante.diseno]
-                .filter(Boolean)
-                .join(" · ")
-            : undefined,
-          cantidad: item.cantidad,
-          precioUnitarioCentimos: item.precioUnitarioCentimos,
-          imagen: encontrado?.variante.imagen,
-        }
-      }),
-      direccion: {
-        direccion: resultado.direccion.direccion,
-        distrito: resultado.direccion.distrito,
-        provincia: resultado.direccion.provincia,
-        departamento: resultado.direccion.departamento,
-        referencia: resultado.direccion.referencia ?? undefined,
-      },
+      items: resolverItemsEmail(resultado.items),
+      direccion: resolverDireccionEmail(resultado.direccion),
       subtotalCentimos: resultado.subtotalCentimos,
       descuentoCentimos: resultado.descuentoCentimos,
       envioCentimos: resultado.envioCentimos,
@@ -203,7 +219,13 @@ export async function actualizarEstadoPedido(id: string, nuevoEstado: EstadoPedi
     })
   }
   if (nuevoEstado === "ENVIADO") {
-    await enviarEmailPedidoEnviado(resultado.id, resultado.nombreCliente, resultado.emailCliente)
+    await enviarEmailPedidoEnviado({
+      pedidoId: resultado.id,
+      nombreCliente: resultado.nombreCliente,
+      emailCliente: resultado.emailCliente,
+      items: resolverItemsEmail(resultado.items),
+      direccion: resolverDireccionEmail(resultado.direccion),
+    })
   }
 
   return resultado

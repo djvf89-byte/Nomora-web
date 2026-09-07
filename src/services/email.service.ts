@@ -143,14 +143,24 @@ function bloqueDireccion(direccion: DireccionEmail) {
   `
 }
 
+interface PedidoEnviadoEmailData {
+  pedidoId: string
+  nombreCliente: string
+  emailCliente: string
+  items: ItemEmail[]
+  direccion: DireccionEmail
+}
+
 // Se envía cuando el pedido pasa a ENVIADO (admin marca despacho).
-export async function enviarEmailPedidoEnviado(pedidoId: string, nombreCliente: string, emailCliente: string) {
+export async function enviarEmailPedidoEnviado(datos: PedidoEnviadoEmailData) {
   const contenido = `
-    ${chipPedido(pedidoId)}
-    <p style="color:#4a4a4a;line-height:1.6;font-size:15px;margin:0;">
-      Hola ${nombreCliente}, tu pedido ya salió de nuestro almacén y está en camino.
+    ${chipPedido(datos.pedidoId)}
+    <p style="color:#4a4a4a;line-height:1.6;font-size:15px;margin:0 0 20px;">
+      Hola ${datos.nombreCliente}, tu pedido ya salió de nuestro almacén y está en camino.
       Te avisaremos cuando llegue a tus manos.
     </p>
+    ${tablaItems(datos.items)}
+    ${bloqueDireccion(datos.direccion)}
   `
 
   const resend = obtenerClienteResend()
@@ -162,8 +172,8 @@ export async function enviarEmailPedidoEnviado(pedidoId: string, nombreCliente: 
   try {
     await resend.emails.send({
       from: EMAIL_FROM,
-      to: emailCliente,
-      subject: `¡Tu pedido está en camino! Pedido #${numeroPedido(pedidoId)}`,
+      to: datos.emailCliente,
+      subject: `¡Tu pedido está en camino! Pedido #${numeroPedido(datos.pedidoId)}`,
       html: plantillaBase("🚚", "¡Pedido en camino!", "Tu aventura está por llegar", contenido),
     })
   } catch (err) {
