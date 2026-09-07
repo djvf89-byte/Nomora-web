@@ -65,41 +65,40 @@ export function CheckoutContenido() {
 
       <div className="grid grid-cols-1 gap-10 sm:grid-cols-[1fr_320px]">
         {pedidoCreado ? (
-          <div className="space-y-5">
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setMetodoPago("tarjeta")}
-                className={`flex-1 rounded-[2px] border px-4 py-2.5 text-xs font-semibold tracking-[0.08em] uppercase transition-colors ${
-                  metodoPago === "tarjeta"
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-input text-muted-foreground hover:border-foreground"
+          <div className="overflow-hidden rounded-[2px] border border-border">
+            <button
+              type="button"
+              onClick={() => setMetodoPago(metodoPago === "yape" ? "tarjeta" : "yape")}
+              className="flex w-full items-center gap-3 border-b border-border bg-card px-4 py-3.5 text-left transition-colors hover:bg-muted"
+            >
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-bold text-foreground">
+                Y
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-foreground">{t.checkout.payWithYape}</span>
+                <span className="block text-xs text-muted-foreground">{t.checkout.payWithYapeSubtitle}</span>
+              </span>
+              <span
+                aria-hidden
+                className={`h-4 w-4 shrink-0 rounded-full border-2 ${
+                  metodoPago === "yape" ? "border-foreground bg-foreground" : "border-input"
                 }`}
-              >
-                {t.checkout.payWithCardOrTicket}
-              </button>
-              <button
-                type="button"
-                onClick={() => setMetodoPago("yape")}
-                className={`flex-1 rounded-[2px] border px-4 py-2.5 text-xs font-semibold tracking-[0.08em] uppercase transition-colors ${
-                  metodoPago === "yape"
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-input text-muted-foreground hover:border-foreground"
-                }`}
-              >
-                {t.checkout.payWithYape}
-              </button>
-            </div>
-
-            {metodoPago === "tarjeta" ? (
-              <PagoBrick
-                pedidoId={pedidoCreado.pedidoId}
-                totalCentimos={pedidoCreado.totalCentimos}
-                email={pedidoCreado.email}
               />
-            ) : (
-              <PagoYape pedidoId={pedidoCreado.pedidoId} email={pedidoCreado.email} />
-            )}
+            </button>
+
+            <div className="bg-card">
+              {metodoPago === "yape" ? (
+                <div className="p-4">
+                  <PagoYape pedidoId={pedidoCreado.pedidoId} email={pedidoCreado.email} />
+                </div>
+              ) : (
+                <PagoBrick
+                  pedidoId={pedidoCreado.pedidoId}
+                  totalCentimos={pedidoCreado.totalCentimos}
+                  email={pedidoCreado.email}
+                />
+              )}
+            </div>
           </div>
         ) : (
           <CheckoutForm

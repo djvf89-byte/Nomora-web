@@ -69,6 +69,18 @@ export function PagoBrick({
         initialization={{ amount: totalCentimos / 100, payer: { email } }}
         customization={{
           paymentMethods: { creditCard: "all", debitCard: "all", atm: ["pagoefectivo_atm"] },
+          // Esquinas planas para que combine con la fila de Yape justo arriba y con el
+          // resto del sitio (que no usa bordes redondeados).
+          visual: {
+            style: {
+              customVariables: {
+                borderRadiusSmall: "2px",
+                borderRadiusMedium: "2px",
+                borderRadiusLarge: "2px",
+                borderRadiusFull: "2px",
+              },
+            },
+          },
         }}
         onSubmit={async ({ formData }) => {
           setMensajeError(undefined)
