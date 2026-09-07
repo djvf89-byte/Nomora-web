@@ -40,6 +40,36 @@ export function PagoBrick({
     mpInicializado = true
   }, [locale])
 
+  // El Brick dibuja su propio título "Medios de pago" (un <h1> normal, no un iframe) — lo
+  // ocultamos para que la fila de Yape (justo arriba, fuera del Brick) se lea como parte de
+  // la misma lista en vez de una sección aparte con su propio encabezado. El observer sigue
+  // reaccionando mientras el Brick re-renderiza (cambia de método, muestra el formulario de
+  // tarjeta, etc.) — si MercadoPago cambia ese texto, esto simplemente deja de aplicar y el
+  // título vuelve a aparecer, no rompe nada.
+  useEffect(() => {
+    if (fase !== "formulario") return
+    const contenedor = document.getElementById("paymentBrick_container")
+    if (!contenedor) return
+
+    function ocultarTitulo() {
+      const walker = document.createTreeWalker(contenedor!, NodeFilter.SHOW_ELEMENT)
+      let nodo: Node | null
+      while ((nodo = walker.nextNode())) {
+        const el = nodo as HTMLElement
+        const texto = el.textContent?.trim()
+        const esTitulo = texto === "Medios de pago" || texto === "Payment methods"
+        if (el.children.length === 0 && esTitulo && el.style.display !== "none") {
+          el.style.display = "none"
+        }
+      }
+    }
+
+    ocultarTitulo()
+    const observer = new MutationObserver(ocultarTitulo)
+    observer.observe(contenedor, { childList: true, subtree: true })
+    return () => observer.disconnect()
+  }, [fase])
+
   // El pago quedó "pendiente" (Pago Efectivo) — el StatusScreen muestra el ticket, pero la
   // confirmación real la decide el webhook de MercadoPago cuando el cliente paga en el agente.
   useEffect(() => {

@@ -67,6 +67,9 @@ export function CheckoutContenido() {
       <div className="grid grid-cols-1 gap-10 sm:grid-cols-[1fr_320px]">
         {pedidoCreado ? (
           <div className="overflow-hidden rounded-[2px] border border-border bg-white">
+            <h2 className="border-b border-border bg-white px-4 pt-4 pb-3 text-xl font-bold text-foreground">
+              {t.checkout.paymentMethodsTitle}
+            </h2>
             <button
               type="button"
               onClick={() => setMetodoPago(metodoPago === "yape" ? "tarjeta" : "yape")}
