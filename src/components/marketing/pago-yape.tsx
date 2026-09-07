@@ -8,10 +8,12 @@ import { procesarPagoYapeAction } from "@/app/actions/checkout.actions"
 
 // El SDK de MercadoPago.js no está tipado para .yape() (no es parte del Payment Brick,
 // ver plan de migración) — se declara acá el pedacito mínimo que realmente usamos.
+// create() devuelve un objeto de token (igual que un token de tarjeta: id/public_key/bin/...),
+// NO un string — el valor que se manda como "token" al cobrar es siempre el campo `id`.
 declare global {
   interface Window {
     MercadoPago?: new (publicKey: string) => {
-      yape: (opciones: { otp: string; phoneNumber: string }) => { create: () => Promise<string> }
+      yape: (opciones: { otp: string; phoneNumber: string }) => { create: () => Promise<{ id: string }> }
     }
   }
 }
@@ -39,9 +41,9 @@ export function PagoYape({ pedidoId, email }: { pedidoId: string; email: string 
       if (!window.MercadoPago) throw new Error(t.checkout.paymentRejected)
 
       const mp = new window.MercadoPago(publicKey)
-      const token = await mp.yape({ otp, phoneNumber: telefono }).create()
+      const tokenObj = await mp.yape({ otp, phoneNumber: telefono }).create()
 
-      const resultado = await procesarPagoYapeAction(pedidoId, token, email)
+      const resultado = await procesarPagoYapeAction(pedidoId, tokenObj.id, email)
       if (resultado.error || resultado.status !== "approved") {
         setError(resultado.error ?? t.checkout.paymentRejected)
         return
