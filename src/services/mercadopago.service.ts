@@ -48,6 +48,7 @@ export async function crearPagoYape(pedidoId: string, totalCentimos: number, tok
     body: {
       transaction_amount: totalCentimos / 100,
       token,
+      installments: 1,
       payment_method_id: "yape",
       payer: { email },
       external_reference: pedidoId,
