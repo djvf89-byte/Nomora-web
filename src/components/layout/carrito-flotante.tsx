@@ -21,7 +21,7 @@ export function CarritoFlotante() {
     <Link
       href="/carrito"
       aria-label={`${t.nav.cart} — ${cantidad}`}
-      className="fixed right-5 bottom-5 z-30 flex items-center gap-2.5 rounded-[2px] bg-foreground px-5 py-3.5 text-background shadow-lg transition-transform hover:scale-[1.03] sm:right-6 sm:bottom-6"
+      className="fixed bottom-5 left-5 z-30 flex items-center gap-2.5 rounded-[2px] bg-accent px-5 py-3.5 text-accent-foreground shadow-lg transition-transform hover:scale-[1.03] sm:bottom-6 sm:left-6"
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
         <path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.8h8.4a2 2 0 0 0 2-1.6L22 9H6" />
