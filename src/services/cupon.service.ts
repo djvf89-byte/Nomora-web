@@ -53,9 +53,3 @@ export async function validarCupon(codigo: string): Promise<ResultadoValidacionC
   return { valido: true, porcentaje: cupon.porcentaje }
 }
 
-export async function registrarUsoCupon(codigo: string) {
-  await prisma.cupon.update({
-    where: { codigo: codigo.trim().toUpperCase() },
-    data: { usosActuales: { increment: 1 } },
-  })
-}

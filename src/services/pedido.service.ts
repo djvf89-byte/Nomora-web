@@ -185,6 +185,15 @@ export async function actualizarEstadoPedido(id: string, nuevoEstado: EstadoPedi
           data: { stock: { decrement: item.cantidad } },
         })
       }
+      // El uso del cupón se cuenta recién cuando el pago se confirma, no al crear el pedido —
+      // así un checkout abandonado no gasta un uso del cupón (antes se descontaba en
+      // crearPedidoAction, ver checkout.actions.ts).
+      if (pedido.cuponCodigo) {
+        await tx.cupon.update({
+          where: { codigo: pedido.cuponCodigo },
+          data: { usosActuales: { increment: 1 } },
+        })
+      }
     }
 
     const timestamps: Record<string, Date> = {}

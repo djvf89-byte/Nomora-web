@@ -4,7 +4,7 @@ import type { TipoPago } from "@prisma/client"
 import { checkoutSchema } from "@/lib/validators/checkout.schema"
 import { buscarVariante } from "@/constants/catalogo"
 import { crearPedidoInvitado, actualizarEstadoPedido } from "@/services/pedido.service"
-import { validarCupon, registrarUsoCupon } from "@/services/cupon.service"
+import { validarCupon } from "@/services/cupon.service"
 import { obtenerOfertasActivasPorProducto } from "@/services/oferta.service"
 import { obtenerStockPorVariante } from "@/services/producto.service"
 import { crearPagoCheckoutApi, crearPagoYape, type DatosPagoBrick } from "@/services/mercadopago.service"
@@ -162,13 +162,9 @@ export async function crearPedidoAction(formData: FormData): Promise<ResultadoCr
     return { error: "No se pudo registrar el pedido. Intenta de nuevo en unos minutos." }
   }
 
-  if (cuponGano && parsed.data.cuponCodigo) {
-    try {
-      await registrarUsoCupon(parsed.data.cuponCodigo)
-    } catch {
-      // El pedido ya se creó — un fallo acá no debe tumbar la confirmación de compra.
-    }
-  }
+  // El uso del cupón se registra recién cuando el pedido pasa a PAGADO (ver
+  // actualizarEstadoPedido en pedido.service.ts), no acá — un checkout abandonado en esta
+  // fase no debe gastar un uso del cupón.
 
   // No se manda correo acá — recién cuando el pago se confirma (actualizarEstadoPedido,
   // en pedido.service.ts) o cuando se despacha el pedido.
